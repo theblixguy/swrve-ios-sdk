@@ -102,6 +102,7 @@ static CGPoint scaled(CGPoint point, float scale) {
         self.renderScale = [SwrveSDKUtils renderScaleFor:format withParentSize:sizeParent];
         [self setCenter:CGPointMake(self.centerX, self.centerY)];
         [self setAlpha:1];
+        [self setClipsToBounds:YES];
 
         NSArray *pageElements = [self pageElements];
         int buttonTag = 0;
