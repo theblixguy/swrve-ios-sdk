@@ -55,7 +55,7 @@
     SwrveCampaign *campaign = [self.campaigns objectAtIndex:indexPath.row];
 
     // Campaign subject
-    cell.textLabel.text = campaign.subject;
+    cell.textLabel.text = campaign.messageCenterDetails.subject;
     [cell.textLabel setBackgroundColor:[UIColor clearColor]];
     [cell.detailTextLabel setBackgroundColor:[UIColor clearColor]];
 

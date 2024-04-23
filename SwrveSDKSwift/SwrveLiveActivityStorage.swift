@@ -5,13 +5,18 @@ public class SwrveLiveActivityStorage {
     
     private let userDefaults: UserDefaults
     private let storageKey: String
+    private let pushToStartTokenStorageKey: String
+
 
     public init(
         userDefaults: UserDefaults = UserDefaults.standard,
-        storageKey: String = "SwrveTrackedActivites"
+        storageKey: String = "SwrveTrackedActivites",
+        pushToStartTokenStorageKey: String = "SwrvePushToStartToken"
     ) {
         self.userDefaults = userDefaults
         self.storageKey = storageKey
+        self.pushToStartTokenStorageKey = pushToStartTokenStorageKey
+
     }
 }
     
@@ -45,10 +50,26 @@ public class SwrveLiveActivityStorage {
          }
          return activities
      }
+     
+     func fetchActivity(withUniqueActivityId uniqueActivityId: String) -> SwrveLiveActivityData? {
+         fetchActivities().first(where: { $0.id == uniqueActivityId })
+     }
     
      func saveActivities(_ activities: [SwrveLiveActivityData]) {
         let encodedActivities = try? JSONEncoder().encode(activities)
         userDefaults.set(encodedActivities, forKey: storageKey)
     }
+     
 
+}
+
+extension SwrveLiveActivityStorage {
+    
+    func savePushToStartToken(_ token: String) {
+        userDefaults.set(token, forKey: pushToStartTokenStorageKey)
+    }
+    
+    func fetchPushToStartToken() -> String? {
+        userDefaults.string(forKey: pushToStartTokenStorageKey)
+    }
 }

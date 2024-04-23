@@ -13,7 +13,7 @@
 + (SwrvePush *)sharedInstance;
 - (BOOL)handleAuthenticatedPushNotification:(NSDictionary *)userInfo
                             withLocalUserId:(NSString *)localUserId
-                      withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0));
+                      withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0));
 @end
 
 @interface SwrveTestAuthPush : XCTestCase

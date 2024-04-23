@@ -175,6 +175,7 @@
 		C530E8F42B16E70A005D3354 /* campaigns_without_reidentify_period.json in Resources */ = {isa = PBXBuildFile; fileRef = C530E8F22B16E70A005D3354 /* campaigns_without_reidentify_period.json */; };
 		C59307692AE9239800E3B26D /* campaignWithMultilineText.json in Resources */ = {isa = PBXBuildFile; fileRef = C59307682AE9239800E3B26D /* campaignWithMultilineText.json */; };
 		C593076A2AE9239800E3B26D /* campaignWithMultilineText.json in Resources */ = {isa = PBXBuildFile; fileRef = C59307682AE9239800E3B26D /* campaignWithMultilineText.json */; };
+		C5AB4DDE2BAA35B7004723B8 /* SwrveLiveActivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AB4DDD2BAA35B7004723B8 /* SwrveLiveActivityTests.swift */; };
 		C5DCC60D2AC15C9F0056686A /* SwrveLiveStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DCC60C2AC15C9F0056686A /* SwrveLiveStorageTests.swift */; };
 		C86EF2527E421A374BBF9D84 /* Pods_SwrveSDK_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A007CEA1BDDA58160683C958 /* Pods_SwrveSDK_iOSTests.framework */; };
 		DC20863CC49350CC3B73A693 /* Pods_SwrveSDK_tvOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12F449CDBC86B0ABCBF9F10A /* Pods_SwrveSDK_tvOSTests.framework */; };
@@ -365,6 +366,7 @@
 		C530E8EF2B15D2B9005D3354 /* campaigns_with_reidentify_period.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = campaigns_with_reidentify_period.json; sourceTree = "<group>"; };
 		C530E8F22B16E70A005D3354 /* campaigns_without_reidentify_period.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = campaigns_without_reidentify_period.json; sourceTree = "<group>"; };
 		C59307682AE9239800E3B26D /* campaignWithMultilineText.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = campaignWithMultilineText.json; sourceTree = "<group>"; };
+		C5AB4DDD2BAA35B7004723B8 /* SwrveLiveActivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwrveLiveActivityTests.swift; sourceTree = "<group>"; };
 		C5DCC60C2AC15C9F0056686A /* SwrveLiveStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwrveLiveStorageTests.swift; sourceTree = "<group>"; };
 		C5DCC60E2AC15D2A0056686A /* SwrveSDK-iOSTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwrveSDK-iOSTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		CE86487A05DF9E1AD4C9A7F1 /* Pods-SwrveSDKSwiftTestTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwrveSDKSwiftTestTests.release.xcconfig"; path = "../../../SwrvePrivateWorkspace/Pods/Target Support Files/Pods-SwrveSDKSwiftTestTests/Pods-SwrveSDKSwiftTestTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -614,6 +616,7 @@
 			isa = PBXGroup;
 			children = (
 				C5DCC60C2AC15C9F0056686A /* SwrveLiveStorageTests.swift */,
+				C5AB4DDD2BAA35B7004723B8 /* SwrveLiveActivityTests.swift */,
 				C5DCC60E2AC15D2A0056686A /* SwrveSDK-iOSTests-Bridging-Header.h */,
 			);
 			path = Swift;
@@ -1352,6 +1355,7 @@
 				F6A79A242551BD9500E66E47 /* SwrveTestConversationStyler.m in Sources */,
 				F669875225BDABE300950E98 /* SwrveTestEvents.m in Sources */,
 				F6DF565329476F6600ECAC5C /* SwrveTestCampaginHoldouts.m in Sources */,
+				C5AB4DDE2BAA35B7004723B8 /* SwrveLiveActivityTests.swift in Sources */,
 				5B2B6E2623C49346000B1687 /* SwrveTestCampaignAndResourcesUpdate.m in Sources */,
 				5B2B6E3423C4935F000B1687 /* SwrveTestPushNotifications.m in Sources */,
 				5B2B6E1C23C49346000B1687 /* SwrveTestABTestDetails.m in Sources */,
@@ -1514,7 +1518,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1565,7 +1569,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1587,7 +1591,7 @@
 				DEVELOPMENT_TEAM = 38YP67HQGE;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/BlankApp/iOS/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1611,7 +1615,7 @@
 				DEVELOPMENT_TEAM = 38YP67HQGE;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/BlankApp/iOS/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "swrve.SwrveSDK-iOS";
@@ -1696,7 +1700,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Debug;
 		};
@@ -1719,7 +1723,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Release;
 		};

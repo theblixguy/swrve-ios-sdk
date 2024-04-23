@@ -162,7 +162,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     });
 }
 
-+ (UNMutableNotificationContent *)mediaTextFromProvidedContent:(UNMutableNotificationContent *)content __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
++ (UNMutableNotificationContent *)mediaTextFromProvidedContent:(UNMutableNotificationContent *)content {
     NSDictionary *richDict = [content.userInfo objectForKey:SwrveNotificationContentIdentifierKey];
     NSDictionary *mediaDict = [richDict objectForKey:SwrveNotificationMediaKey];
     if (mediaDict) {
@@ -179,7 +179,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     return content;
 }
 
-+ (UNNotificationCategory *)categoryFromUserInfo:(NSDictionary *)userInfo __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
++ (UNNotificationCategory *)categoryFromUserInfo:(NSDictionary *)userInfo {
     NSDictionary *richDict = [userInfo objectForKey:SwrveNotificationContentIdentifierKey];
     NSArray *buttons = [richDict valueForKey:SwrveNotificationButtonListKey];
     NSArray *options = [richDict objectForKey:SwrveNotificationCategoryOptionsKey];
@@ -209,20 +209,15 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     NSString *hiddenPlaceholder = [richDict objectForKey:SwrveNotificationHiddenPreviewTextPlaceholderKey];
     UNNotificationCategory *category;
     
-    if(@available(iOS 11.0, *)) {
-        if (hiddenPlaceholder != nil && [hiddenPlaceholder length] > 0) {
-            category = [UNNotificationCategory categoryWithIdentifier:categoryKey actions:actions intentIdentifiers:intentIdentifiers hiddenPreviewsBodyPlaceholder:hiddenPlaceholder options:categoryOptions];
-        } else {
-            category = [UNNotificationCategory categoryWithIdentifier:categoryKey actions:actions intentIdentifiers:intentIdentifiers options:categoryOptions];
-        }
+    if (hiddenPlaceholder != nil && [hiddenPlaceholder length] > 0) {
+        category = [UNNotificationCategory categoryWithIdentifier:categoryKey actions:actions intentIdentifiers:intentIdentifiers hiddenPreviewsBodyPlaceholder:hiddenPlaceholder options:categoryOptions];
     } else {
         category = [UNNotificationCategory categoryWithIdentifier:categoryKey actions:actions intentIdentifiers:intentIdentifiers options:categoryOptions];
     }
-    
     return category;
 }
 
-+ (void)verifyCategoryGenerated:(UNNotificationCategory *) generatedCategory withCompletedCallback:(void (^)(BOOL found)) callback  __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
++ (void)verifyCategoryGenerated:(UNNotificationCategory *) generatedCategory withCompletedCallback:(void (^)(BOOL found)) callback  {
     
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     [center getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *_Nonnull categories) {
@@ -235,7 +230,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     }];
 }
 
-+ (void)downloadAttachment:(NSString *)mediaUrl withCompletedContentCallback:(void (^)(UNNotificationAttachment *attachment, NSError *error))callback __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
++ (void)downloadAttachment:(NSString *)mediaUrl withCompletedContentCallback:(void (^)(UNNotificationAttachment *attachment, NSError *error))callback {
 
     __block UNNotificationAttachment *attachment = nil;
     __block NSURL *attachmentURL = [NSURL URLWithString:mediaUrl];
@@ -328,7 +323,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     return [mimeToFileExtension objectForKey:[mimeType lowercaseString]];
 }
 
-+ (UNNotificationAttachment *)attachmentFromCache:(NSString *)externalUrlString inCacheDir:(NSString *)cacheDir  API_AVAILABLE(ios(10.0)){
++ (UNNotificationAttachment *)attachmentFromCache:(NSString *)externalUrlString inCacheDir:(NSString *)cacheDir  API_AVAILABLE(ios(12.0)){
     UNNotificationAttachment *attachment = nil;
     NSURL *externalUrl = [NSURL URLWithString:externalUrlString];
     NSURL *attachmentURL;
@@ -625,7 +620,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     [swrveCommon handleNotificationToCampaign:campaignId];
 }
 
-+ (void)clearAllAuthenticatedNotifications API_AVAILABLE(ios(10.0)) {
++ (void)clearAllAuthenticatedNotifications API_AVAILABLE(ios(12.0)) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     [center getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *_Nonnull notifications) {
         NSMutableArray *identifierArray = [SwrveNotificationManager authenticatedNotificationsFrom:notifications];
@@ -635,7 +630,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     }];
 }
 
-+ (NSMutableArray *)authenticatedNotificationsFrom:(NSArray<UNNotification *> *)notifications API_AVAILABLE(ios(10.0)) {
++ (NSMutableArray *)authenticatedNotificationsFrom:(NSArray<UNNotification *> *)notifications API_AVAILABLE(ios(12.0)) {
     NSMutableArray *identifierArray = [NSMutableArray new];
     for (UNNotification* notification in notifications) {
         if (notification != nil && notification.request != nil && notification.request.content != nil && notification.request.content.userInfo != nil) {
@@ -648,7 +643,7 @@ withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completi
     return identifierArray;
 }
 
-+ (UNMutableNotificationContent *)setMediaDownloadFailed:(UNMutableNotificationContent *)mutableNotificationContent API_AVAILABLE(ios(10.0)) {
++ (UNMutableNotificationContent *)setMediaDownloadFailed:(UNMutableNotificationContent *)mutableNotificationContent API_AVAILABLE(ios(12.0)) {
     NSMutableDictionary *moddedUserInfo = [mutableNotificationContent.userInfo mutableCopy];
     moddedUserInfo[SwrveNotificationMediaDownloadFailed] = @YES;
     mutableNotificationContent.userInfo = moddedUserInfo;

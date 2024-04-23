@@ -80,6 +80,16 @@
     XCTAssertThrows([swrve initWithAppID:572 apiKey:@"AnotherAPIKey"], @"Do not initialize Swrve instance more than once!");
 }
 
+- (void)testDeviceID {
+    [SwrveSDK sharedInstanceWithAppID:572 apiKey:@"SomeAPIKey"];
+    Swrve *swrve = [SwrveSDK sharedInstance];
+    XCTAssertNotNil(swrve);
+    NSString *deviceIDString = [SwrveSDK deviceID];
+    XCTAssertNotNil(deviceIDString);
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:deviceIDString];
+    XCTAssertNotNil(uuid);
+}
+
 - (void)testManyCreations {
     for (int i = 0; i < 5; ++i) {
         Swrve *swrveMock = [SwrveTestHelper swrveMockWithMockedRestClient];

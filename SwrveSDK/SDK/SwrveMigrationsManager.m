@@ -421,18 +421,10 @@ const static int SWRVE_SDK_CACHE_VERSION = 3;
     if (swrveUsersData != nil) {
         NSError *error = nil;
         NSArray *swrveUsers = nil;
-        if (@available(ios 11.0,tvos 11.0, *)) {
-            NSSet *classes = [NSSet setWithArray:@[[NSArray class],[SwrveUser class]]];
-            swrveUsers = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:swrveUsersData error:&error];
-            if (error) {
-                [SwrveLogger error:@"Failed to un archive swrve user: %@", [error localizedDescription]];
-            }
-        } else {
-            // Fallback on earlier versions
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            swrveUsers = [NSKeyedUnarchiver unarchiveObjectWithData:swrveUsersData];
-            #pragma clang diagnostic pop
+        NSSet *classes = [NSSet setWithArray:@[[NSArray class],[SwrveUser class]]];
+        swrveUsers = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:swrveUsersData error:&error];
+        if (error) {
+            [SwrveLogger error:@"Failed to un archive swrve user: %@", [error localizedDescription]];
         }
         
         if (error) {

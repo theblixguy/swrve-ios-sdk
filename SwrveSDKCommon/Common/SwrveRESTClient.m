@@ -56,7 +56,7 @@
     [self sendHttpRequest:request completionHandler:handler];
 }
 
-- (void)sendHttpRequest:(NSMutableURLRequest *)request completionHandler:(void (^)(NSURLResponse *, NSData *, NSError *))handler API_AVAILABLE(ios(7.0)) {
+- (void)sendHttpRequest:(NSMutableURLRequest *)request completionHandler:(void (^)(NSURLResponse *, NSData *, NSError *))handler API_AVAILABLE(ios(12.0)) {
     NSURLSession *session = nil;
     id<NSURLSessionDelegate> del = self.urlSessionDelegate;
     if (del) {

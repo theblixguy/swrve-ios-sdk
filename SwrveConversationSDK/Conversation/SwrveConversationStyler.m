@@ -164,7 +164,7 @@ static NSString *const kSwrveDefaultColorLb = @"B3000000"; // 70% alpha black
 }
 
 // Similar method in SwrveSDKUtils
-+ (UIFont *)fontFromStyle:(NSDictionary *)style withFallback:(UIFont *)fallbackUIFont API_AVAILABLE(ios(7.0)) {
++ (UIFont *)fontFromStyle:(NSDictionary *)style withFallback:(UIFont *)fallbackUIFont API_AVAILABLE(ios(12.0)) {
 
     NSString *fontFile = [style objectForKey:kSwrveKeyFontFile];
     NSString *fontPostscriptName = [style objectForKey:kSwrveKeyFontPostscriptName];

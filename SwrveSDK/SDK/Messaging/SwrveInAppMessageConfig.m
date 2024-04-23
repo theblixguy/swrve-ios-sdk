@@ -7,9 +7,6 @@
 @synthesize personalizationForegroundColor;
 @synthesize personalizationBackgroundColor;
 @synthesize personalizationFont;
-@synthesize customButtonCallback;
-@synthesize dismissButtonCallback;
-@synthesize clipboardButtonCallback;
 @synthesize personalizationCallback;
 @synthesize inAppCapabilitiesDelegate;
 @synthesize inAppMessageDelegate;

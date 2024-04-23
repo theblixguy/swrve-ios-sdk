@@ -25,7 +25,6 @@ const static int DEFAULT_MIN_DELAY_BETWEEN_MSGS = 60;
 @synthesize triggers;
 @synthesize initialisedTime;
 @synthesize messageCenter;
-@synthesize subject;
 @synthesize campaignType;
 @synthesize messageCenterDetails;
 @synthesize priority;
@@ -47,11 +46,6 @@ const static int DEFAULT_MIN_DELAY_BETWEEN_MSGS = 60;
         // Load from JSON
         self.ID = [[json objectForKey:@"id"] unsignedIntegerValue];
         self.messageCenter = [[json objectForKey:@"message_center"] boolValue];
-        NSString *subjectString = [json objectForKey:@"subject"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.subject = (subjectString == (id) [NSNull null]) ? @"" : subjectString;
-#pragma clang diagnostic pop
         self.state = [[SwrveCampaignState alloc] initWithID:self.ID date:time];
 
         [self loadTriggersFrom:json];

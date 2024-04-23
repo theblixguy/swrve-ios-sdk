@@ -167,7 +167,7 @@ enum {
 
 - (void)setPushNotificationsDeviceToken:(NSData *)newDeviceToken;
 
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0));
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0));
 
 - (void)processInfluenceData;
 
@@ -463,12 +463,8 @@ enum {
         if (swrveConfig.pushEnabled) {
             push = [SwrvePush sharedInstanceWithPushDelegate:self andCommonDelegate:self];
 
-            if (@available(iOS 10.0, *)) {
-                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-                center.delegate = push;
-            } else {
-                [SwrveLogger error:@"UNUserNotificationCenter delegate not set, not supported (should not reach this code)", nil];
-            }
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            center.delegate = push;
 
             if (swrveConfig.autoCollectDeviceToken) {
                 [self.push observeSwizzling];
@@ -1333,10 +1329,6 @@ enum {
     NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
     [json setValue:NullableNSString(eventName) forKey:@"name"];
     
-    if (eventName != nil && [eventName isEqualToString:@"Swrve.live_activity_update"]) {
-        [json setValue:@"false" forKey: @"user_initiated"];
-    }
-    
     [json setValue:eventPayload forKey:@"payload"];
     return [self queueEvent:@"event" data:json triggerCallback:triggerCallback notifyMessageController:notifyMessageController];
 }
@@ -1568,7 +1560,20 @@ enum {
     return self->_deviceToken;
 }
 
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler  API_AVAILABLE(ios(7.0)) {
+- (void)sendDeviceUpdate {
+    if (![self sdkReady]) {
+        return;
+    }
+    NSDictionary *deviceInfo = [self deviceInfo];
+    [self mergeWithCurrentDeviceInfo:deviceInfo];
+    [self mergeWithCurrentDeviceInfo:[SwrvePermissions currentStatusWithSDK:self]];
+
+    [self logDeviceInfo:deviceInfo];
+    [self queueDeviceInfo];
+    [self sendQueuedEvents];
+}
+
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler  API_AVAILABLE(ios(12.0)) {
     if (self.config.pushEnabled) {
         return [self.push didReceiveRemoteNotification:userInfo withBackgroundCompletionHandler:completionHandler];
     } else {
@@ -1585,23 +1590,19 @@ enum {
     }
 }
 
-- (void)processNotificationResponse:(UNNotificationResponse *)response __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
+- (void)processNotificationResponse:(UNNotificationResponse *)response {
     [self processNotificationResponseWithIdentifier:response.actionIdentifier andUserInfo:response.notification.request.content.userInfo];
 }
 
 - (void)deeplinkReceived:(NSURL *)url NS_EXTENSION_UNAVAILABLE_IOS("") {
-    if (@available(iOS 10.0, *)) {
-        id <SwrveDeeplinkDelegate> del = self.config.deeplinkDelegate;
-        if (del != nil && [del respondsToSelector:@selector(handleDeeplink:)]) {
-            [del handleDeeplink:url];
-            [SwrveLogger debug:@"Passing url to deeplink delegate for processing [%@]", url];
-        } else {
-            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
-                [SwrveLogger debug:@"Opening url [%@] successfully: %d", url, success];
-            }];
-        }
+    id <SwrveDeeplinkDelegate> del = self.config.deeplinkDelegate;
+    if (del != nil && [del respondsToSelector:@selector(handleDeeplink:)]) {
+        [del handleDeeplink:url];
+        [SwrveLogger debug:@"Passing url to deeplink delegate for processing [%@]", url];
     } else {
-        [SwrveLogger error:@"Deeplink not processed, not supported (should not reach this code)", nil];
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
+            [SwrveLogger debug:@"Opening url [%@] successfully: %d", url, success];
+        }];
     }
 }
 

@@ -149,7 +149,7 @@ NSString *appGroupIdentifier;
 #endif //!SWRVE_NO_PUSH
 }
 
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0)) {
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0)) {
 #if !defined(SWRVE_NO_PUSH)//this is only relevant for unity
     return [self didReceiveRemoteNotification:userInfo withBackgroundCompletionHandler:completionHandler withLocalUserId:[SwrveLocalStorage swrveUserId]];
 #endif //!SWRVE_NO_PUSH
@@ -158,7 +158,7 @@ NSString *appGroupIdentifier;
 
 
 #if !defined(SWRVE_NO_PUSH)//this is only relevant for unity
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler withLocalUserId:(NSString *) localUserId API_AVAILABLE(ios(7.0)) {
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler withLocalUserId:(NSString *) localUserId API_AVAILABLE(ios(12.0)) {
     if (_commonDelegate != NULL) {
         appGroupIdentifier = _commonDelegate.appGroupIdentifier;
     }
@@ -182,7 +182,7 @@ NSString *appGroupIdentifier;
 
 - (BOOL)handleAuthenticatedPushNotification:(NSDictionary *)userInfo
                             withLocalUserId:(NSString *)localUserId
-                      withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0)) {
+                      withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0)) {
 
     [self sendPushDelivery:userInfo];
 
@@ -196,74 +196,70 @@ NSString *appGroupIdentifier;
         return NO;
     }
 
-    if (@available(iOS 10.0, *)) {
-        //for authenticated push we need to set the title, subtitle and body from the "_sw" dictionary
-        //as these values are removed by the backend from the "aps" dictionary to support silent push.
-        UNMutableNotificationContent *notificationContent = [[UNMutableNotificationContent alloc] init];
-        notificationContent.userInfo = userInfo;
+    //for authenticated push we need to set the title, subtitle and body from the "_sw" dictionary
+    //as these values are removed by the backend from the "aps" dictionary to support silent push.
+    UNMutableNotificationContent *notificationContent = [[UNMutableNotificationContent alloc] init];
+    notificationContent.userInfo = userInfo;
 
-        NSDictionary *richDict = [userInfo objectForKey:SwrveNotificationContentIdentifierKey];
-        NSDictionary *mediaDict = [richDict objectForKey:SwrveNotificationMediaKey];
-        if (mediaDict) {
-            if ([mediaDict objectForKey:SwrveNotificationTitleKey]) {
-                notificationContent.title = [mediaDict objectForKey:SwrveNotificationTitleKey];
-            }
-            if ([mediaDict objectForKey:SwrveNotificationSubtitleKey]) {
-                notificationContent.subtitle = [mediaDict objectForKey:SwrveNotificationSubtitleKey];
-            }
-            if ([mediaDict objectForKey:SwrveNotificationBodyKey]) {
-                notificationContent.body = [mediaDict objectForKey:SwrveNotificationBodyKey];
-            }
+    NSDictionary *richDict = [userInfo objectForKey:SwrveNotificationContentIdentifierKey];
+    NSDictionary *mediaDict = [richDict objectForKey:SwrveNotificationMediaKey];
+    if (mediaDict) {
+        if ([mediaDict objectForKey:SwrveNotificationTitleKey]) {
+            notificationContent.title = [mediaDict objectForKey:SwrveNotificationTitleKey];
         }
-
-        NSString *pushId = [SwrvePush pushIdFromNotificationContent:userInfo andPushIdKey:SwrveNotificationIdentifierKey]; // pushId already validated in isValidNotificationContent
-        [SwrveCampaignInfluence saveInfluencedData:notificationContent.userInfo
-                                            withId:pushId
-                                    withAppGroupID:appGroupIdentifier
-                                            atDate:[NSDate date]];
-        
-        __block UIBackgroundTaskIdentifier handleContentTask = UIBackgroundTaskInvalid;
-        __block NSString *taskName = [NSString stringWithFormat:@"handleContent %@",pushId];
-        handleContentTask = [SwrveUtils startBackgroundTaskCommon:handleContentTask withName:taskName];
-        [SwrveNotificationManager handleContent:notificationContent withCompletionCallback:^(UNMutableNotificationContent *content) {\
-
-            //if media url was present and failed to download, we wont show the push
-            if ([content.userInfo[SwrveNotificationMediaDownloadFailed] boolValue]) {
-                [SwrveLogger error:@"Media download failed, authenticated push does not support fallback text", nil];
-                if (completionHandler != nil) {
-                    completionHandler(UIBackgroundFetchResultFailed, nil);
-                }
-                [SwrveUtils stopBackgroundTaskCommon:handleContentTask withName:taskName];
-                return;
-            }
-
-            NSString *requestIdentifier = [NSDateFormatter localizedStringFromDate:[NSDate date]
-                                                                         dateStyle:NSDateFormatterShortStyle
-                                                                         timeStyle:NSDateFormatterFullStyle];
-            requestIdentifier = [requestIdentifier stringByAppendingString:[NSString stringWithFormat:@" Id: %@", pushId]];
-
-            UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.5 repeats:NO];
-            UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:requestIdentifier
-                                                                                  content:content
-                                                                                  trigger:trigger];
-
-            [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError *_Nullable error) {
-                if (error == nil) {
-                    [SwrveLogger debug:@"Authenticated notification completed correctly", nil];
-                } else {
-                    [SwrveLogger error:@"Authenticated Notification error %@", error];
-                }
-                if (completionHandler != nil) {
-                    completionHandler(UIBackgroundFetchResultNewData, nil);
-                }
-                [SwrveUtils stopBackgroundTaskCommon:handleContentTask withName:taskName];
-            }];
-        }];
-
-        return YES;
+        if ([mediaDict objectForKey:SwrveNotificationSubtitleKey]) {
+            notificationContent.subtitle = [mediaDict objectForKey:SwrveNotificationSubtitleKey];
+        }
+        if ([mediaDict objectForKey:SwrveNotificationBodyKey]) {
+            notificationContent.body = [mediaDict objectForKey:SwrveNotificationBodyKey];
+        }
     }
 
-    return NO;
+    NSString *pushId = [SwrvePush pushIdFromNotificationContent:userInfo andPushIdKey:SwrveNotificationIdentifierKey]; // pushId already validated in isValidNotificationContent
+    [SwrveCampaignInfluence saveInfluencedData:notificationContent.userInfo
+                                        withId:pushId
+                                withAppGroupID:appGroupIdentifier
+                                        atDate:[NSDate date]];
+    
+    __block UIBackgroundTaskIdentifier handleContentTask = UIBackgroundTaskInvalid;
+    __block NSString *taskName = [NSString stringWithFormat:@"handleContent %@",pushId];
+    handleContentTask = [SwrveUtils startBackgroundTaskCommon:handleContentTask withName:taskName];
+    [SwrveNotificationManager handleContent:notificationContent withCompletionCallback:^(UNMutableNotificationContent *content) {\
+
+        //if media url was present and failed to download, we wont show the push
+        if ([content.userInfo[SwrveNotificationMediaDownloadFailed] boolValue]) {
+            [SwrveLogger error:@"Media download failed, authenticated push does not support fallback text", nil];
+            if (completionHandler != nil) {
+                completionHandler(UIBackgroundFetchResultFailed, nil);
+            }
+            [SwrveUtils stopBackgroundTaskCommon:handleContentTask withName:taskName];
+            return;
+        }
+
+        NSString *requestIdentifier = [NSDateFormatter localizedStringFromDate:[NSDate date]
+                                                                     dateStyle:NSDateFormatterShortStyle
+                                                                     timeStyle:NSDateFormatterFullStyle];
+        requestIdentifier = [requestIdentifier stringByAppendingString:[NSString stringWithFormat:@" Id: %@", pushId]];
+
+        UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.5 repeats:NO];
+        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:requestIdentifier
+                                                                              content:content
+                                                                              trigger:trigger];
+
+        [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(NSError *_Nullable error) {
+            if (error == nil) {
+                [SwrveLogger debug:@"Authenticated notification completed correctly", nil];
+            } else {
+                [SwrveLogger error:@"Authenticated Notification error %@", error];
+            }
+            if (completionHandler != nil) {
+                completionHandler(UIBackgroundFetchResultNewData, nil);
+            }
+            [SwrveUtils stopBackgroundTaskCommon:handleContentTask withName:taskName];
+        }];
+    }];
+
+    return YES;
 }
 
 + (BOOL)isValidNotificationContent:(NSDictionary *)userInfo {
@@ -347,7 +343,7 @@ NSString *appGroupIdentifier;
 
 #pragma mark - UNUserNotificationCenterDelegate Functions
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
 #pragma unused(center)
 
     if (_responseDelegate) {
@@ -368,7 +364,7 @@ NSString *appGroupIdentifier;
 
 #ifdef __IPHONE_11_0
 
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
 #else
     - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler {
 #endif
@@ -405,7 +401,7 @@ NSString *appGroupIdentifier;
 
 #pragma mark - silent push
 
-- (BOOL)handleSilentPushNotification:(NSDictionary *)userInfo withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0)) {
+- (BOOL)handleSilentPushNotification:(NSDictionary *)userInfo withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0)) {
 
     [self sendPushDelivery:userInfo];
 

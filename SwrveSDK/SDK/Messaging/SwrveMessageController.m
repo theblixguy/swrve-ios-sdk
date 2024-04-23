@@ -159,9 +159,6 @@ const static int DEFAULT_MIN_DELAY = 55;
 @synthesize autoShowMessagesEnabled;
 @synthesize analyticsSDK;
 @synthesize minDelayBetweenMessage;
-@synthesize customButtonCallback;
-@synthesize dismissButtonCallback;
-@synthesize clipboardButtonCallback;
 @synthesize personalizationCallback;
 @synthesize swrveConversationItemViewController;
 @synthesize prefersConversationsStatusBarHidden;
@@ -206,11 +203,7 @@ const static int DEFAULT_MIN_DELAY = 55;
 #if TARGET_OS_IOS
     self.pushEnabled = sdk.config.pushEnabled;
     self.provisionalPushNotificationEvents = sdk.config.provisionalPushNotificationEvents;
-    if (sdk.config.pushNotificationPermissionEvents) {
-        self.pushNotificationPermissionEvents = sdk.config.pushNotificationPermissionEvents;
-    } else {
-        self.pushNotificationPermissionEvents = sdk.config.pushNotificationEvents;
-    }
+    self.pushNotificationPermissionEvents = sdk.config.pushNotificationPermissionEvents;
 #endif //TARGET_OS_IOS
     self.appStoreURLs = [NSMutableDictionary new];
 
@@ -221,14 +214,6 @@ const static int DEFAULT_MIN_DELAY = 55;
     }
 
     self.embeddedMessageConfig = sdk.config.embeddedMessageConfig;
-
-    // Link previously public properties from the new inAppMessage
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    self.customButtonCallback = self.inAppMessageConfig.customButtonCallback;
-    self.dismissButtonCallback = self.inAppMessageConfig.dismissButtonCallback;
-    self.clipboardButtonCallback = self.inAppMessageConfig.clipboardButtonCallback;
-#pragma clang diagnostic pop
     self.personalizationCallback = self.inAppMessageConfig.personalizationCallback;
 
     self.manager = [NSFileManager defaultManager];
@@ -1364,14 +1349,9 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         return nil;
     }
     SwrveInAppCampaign *campaign = (SwrveInAppCampaign *) message.campaign;
-    NSString *subject = nil;
+    NSString *subject = @"";
     if (campaign.messageCenterDetails != nil) {
         subject = campaign.messageCenterDetails.subject;
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        subject = campaign.subject;
-#pragma clang diagnostic pop
     }
     
     NSMutableArray *allButtons = [NSMutableArray new];
@@ -1423,18 +1403,11 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
                 if (self.inAppButtonPressedName) { // In App Story with last page progression of dismiss won't have a selected button, therefore no pressed name
                     selectedButton = [[SwrveMessageButtonDetails alloc] initWith:self.inAppButtonPressedName
                                                                       buttonText:self.inAppButtonPressedText
-                                                                      actionType:kSwrveActionDismiss
+                                                                      actionType:self.inAppMessageActionType
                                                                     actionString:self.inAppMessageAction];
                 }
                 [delegate onAction:SwrveActionDismiss messageDetails:md selectedButton:selectedButton];
             }
-            else if (self.dismissButtonCallback != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                self.dismissButtonCallback(dismissedCampaign.subject, inAppButtonPressedName, message.name);
-#pragma clang diagnostic pop
-            }
-            actionTypeString = @"dismiss";
         }
             break;
         case kSwrveActionInstall: {
@@ -1443,27 +1416,25 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         }
             break;
         case kSwrveActionCustom: {
+            actionTypeString = @"deeplink";
+            // if this callback is implemented we still process deeplinks internally.
+            // Customer can override this by implementing SwrveDeeplinkDelegate.
+            nonProcessedAction = action;
+            
             id <SwrveInAppMessageDelegate> delegate = self.analyticsSDK.config.inAppMessageConfig.inAppMessageDelegate;
             if (delegate != nil && [delegate respondsToSelector:@selector(onAction:messageDetails:selectedButton:)]) {
                 SwrveMessageDetails *md = [self messageDetails:message];
                 SwrveMessageButtonDetails *selectedButton = [[SwrveMessageButtonDetails alloc]initWith:self.inAppButtonPressedName
                                                                                             buttonText:self.inAppButtonPressedText
-                                                                                            actionType:kSwrveActionCustom
+                                                                                            actionType:self.inAppMessageActionType
                                                                                           actionString:self.inAppMessageAction];
                 [delegate onAction:SwrveActionCustom messageDetails:md selectedButton:selectedButton];
-                
-                // if this callback is implemented we still process deeplinks internally. Customer can override this by implementing SwrveDeeplinkDelegate. Note: This is different behaviour to the deprecated customButtonCallback below.
-                nonProcessedAction = action;
             }
-            else if (self.customButtonCallback != nil) {
-                self.customButtonCallback(action, message.name);
-            } else {
-                nonProcessedAction = action;
-            }
-            actionTypeString = @"deeplink";
         }
             break;
         case kSwrveActionClipboard: {
+            actionTypeString = @"clipboard";
+
 #if TARGET_OS_IOS /** exclude tvOS **/
             if (action != nil) {
                 UIPasteboard *pb = [UIPasteboard generalPasteboard];
@@ -1476,17 +1447,12 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
                 SwrveMessageDetails *md = [self messageDetails:message];
                 SwrveMessageButtonDetails *selectedButton = [[SwrveMessageButtonDetails alloc]initWith:self.inAppButtonPressedName
                                                                                             buttonText:self.inAppButtonPressedText
-                                                                                            actionType:kSwrveActionClipboard
+                                                                                            actionType:self.inAppMessageActionType
                                                                                           actionString:self.inAppMessageAction];
                 [delegate onAction:SwrveActionClipboard messageDetails:md selectedButton:selectedButton];
             }
-            else if (self.clipboardButtonCallback != nil) {
-               self.clipboardButtonCallback(action);
-            }
-
-            actionTypeString = @"clipboard";
-            break;
         }
+            break;
         case kSwrveActionCapability: {
             actionTypeString = @"request_capability";
             // action is the capability type eg @"swrve.camera" @"swrve.photo" etc.
@@ -1518,7 +1484,6 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
             [[SwrveCommon sharedUIApplication] openURL:url options:@{} completionHandler:nil];
 #endif //TARGET_OS_IOS
         }
-            break;
         case kSwrveActionOpenNotificationSettings: {
 #if TARGET_OS_IOS
             if (@available(iOS 15.4, *)) {
@@ -1542,24 +1507,25 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
     }
 
     // QA logging
-    [SwrveQA campaignButtonClicked:[NSNumber numberWithUnsignedLong:dismissedCampaign.ID] variantId:message.messageID buttonName:inAppButtonPressedName actionType:actionTypeString actionValue:action];
+    [SwrveQA campaignButtonClicked:[NSNumber numberWithUnsignedLong:dismissedCampaign.ID] 
+                         variantId:message.messageID
+                        buttonName:inAppButtonPressedName
+                        actionType:actionTypeString
+                       actionValue:action
+    ];
 
     if (nonProcessedAction != nil) {
         NSURL *url = [NSURL URLWithString:nonProcessedAction];
         if (url != nil) {
-            if (@available(iOS 10.0, *)) {
-                [SwrveLogger debug:@"Action - %@ - handled.  Sending to application as URL", nonProcessedAction];
-                id <SwrveDeeplinkDelegate> del = self.analyticsSDK.config.deeplinkDelegate;
-                if (del != nil && [del respondsToSelector:@selector(handleDeeplink:)]) {
-                    [del handleDeeplink:url];
-                    [SwrveLogger debug:@"Passing url to deeplink delegate for processing [%@]", url];
-                } else {
-                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
-                        [SwrveLogger debug:@"Opening url [%@] successfully: %d", url, success];
-                    }];
-                }
+            [SwrveLogger debug:@"Action - %@ - handled.  Sending to application as URL", nonProcessedAction];
+            id <SwrveDeeplinkDelegate> del = self.analyticsSDK.config.deeplinkDelegate;
+            if (del != nil && [del respondsToSelector:@selector(handleDeeplink:)]) {
+                [del handleDeeplink:url];
+                [SwrveLogger debug:@"Passing url to deeplink delegate for processing [%@]", url];
             } else {
-                [SwrveLogger error:@"Action not handled, not supported (should not reach this code)", nil];
+                [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
+                    [SwrveLogger debug:@"Opening url [%@] successfully: %d", url, success];
+                }];
             }
         } else {
             [SwrveLogger error:@"Action - %@ -  not handled. Override the customButtonCallback to customize message actions", nonProcessedAction];
@@ -1643,19 +1609,12 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         if (messageToBeDisplayed.control) {
             [SwrveLogger warning:@"This message is a control message and should not be displayed.", nil];
         }
-
+        
         if (self.embeddedMessageConfig.embeddedCallback != nil) {
             self.embeddedMessageConfig.embeddedCallback(messageToBeDisplayed, personalizationProperties, messageToBeDisplayed.control);
-        } else {
-            if (messageToBeDisplayed.control) {
-                [self baseMessageWasHandledOrShownToUser:message embedded:@"true"];
-                return campaignShown;
-            }
-            else if (self.embeddedMessageConfig.embeddedMessageCallbackWithPersonalization != nil) {
-                self.embeddedMessageConfig.embeddedMessageCallbackWithPersonalization(messageToBeDisplayed, personalizationProperties);
-            } else if (self.embeddedMessageConfig.embeddedMessageCallback != nil) {
-                self.embeddedMessageConfig.embeddedMessageCallback(messageToBeDisplayed);
-            }
+        } else if (messageToBeDisplayed.control) {
+            [self baseMessageWasHandledOrShownToUser:message embedded:@"true"];
+            return campaignShown;
         }
         campaignShown = YES;
     }
@@ -1707,7 +1666,7 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
     }
 }
 
-- (NSString *)campaignQueryString API_AVAILABLE(ios(7.0)) {
+- (NSString *)campaignQueryString API_AVAILABLE(ios(12.0)) {
     const NSString *orientationName = [self orientationName];
     UIDevice *device = [UIDevice currentDevice];
     NSString *encodedDeviceName = [[device model] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -1899,15 +1858,8 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         return YES;
     } else if ([campaign isKindOfClass:[SwrveEmbeddedCampaign class]]) {
         SwrveEmbeddedMessage *message = ((SwrveEmbeddedCampaign *) campaign).message;
-        if (message != nil) {
-            if (self.embeddedMessageConfig.embeddedCallback != nil) {
-                self.embeddedMessageConfig.embeddedCallback(message, personalizationProperties, message.control);
-            }
-            else if (self.embeddedMessageConfig.embeddedMessageCallbackWithPersonalization != nil) {
-                self.embeddedMessageConfig.embeddedMessageCallbackWithPersonalization(message, personalizationProperties);
-            } else if (self.embeddedMessageConfig.embeddedMessageCallback != nil) {
-                self.embeddedMessageConfig.embeddedMessageCallback(message);
-            }
+        if (message != nil && self.embeddedMessageConfig.embeddedCallback != nil) {
+            self.embeddedMessageConfig.embeddedCallback(message, personalizationProperties, message.control);
         }
 
         return YES;

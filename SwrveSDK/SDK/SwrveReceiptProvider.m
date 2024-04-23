@@ -20,7 +20,7 @@
 @implementation SwrveReceiptProvider
 
 // Return the transaction receipt data stored in the main bundle of the app.
-- (SwrveReceiptProviderResult *)receiptForTransaction:(SKPaymentTransaction *)transaction API_AVAILABLE(ios(8.0)) {
+- (SwrveReceiptProviderResult *)receiptForTransaction:(SKPaymentTransaction *)transaction API_AVAILABLE(ios(12.0)) {
     NSData *receipt = [self readMainBundleAppStoreReceipt];
     if (!receipt) {
         [SwrveLogger error:@"Error reading receipt from device", nil];
@@ -30,11 +30,11 @@
     return [[SwrveReceiptProviderResult alloc] init:encodedReceipt withTransactionId:transaction.transactionIdentifier];
 }
 
-- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(8.0)) {
+- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(12.0)) {
     return [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 }
 
-- (NSString *)base64encode:(NSData *)receipt API_AVAILABLE(ios(8.0)) {
+- (NSString *)base64encode:(NSData *)receipt API_AVAILABLE(ios(12.0)) {
     return [receipt base64EncodedStringWithOptions:0];
 }
 

@@ -21,7 +21,6 @@
 @property(atomic) NSTimeInterval minDelayBetweenMsgs;       /*!< Minimum interval between different campaigns being shown. */
 @property(nonatomic, retain) NSDate *showMsgsAfterLaunch;   /*!< Timestamp to block messages after launch. */
 @property(atomic) bool messageCenter;                       /*!< Flag indicating if it is a Message Center campaign. */
-@property(nonatomic, retain) NSString *subject __deprecated_msg ("This is populated by the Campaign description field from your Dashboard. Migrate to using the SwrveMessageCenterDetails subject"); /*!<Message Center Campaign subject */
 @property(nonatomic, retain) NSDate *dateStart;             /*!< Timestamp representing the start date of Message Center campaign. */
 @property(atomic) SwrveCampaignType campaignType;           /*!< Enum representing the campaign type for QA Logging. */
 @property(retain, nonatomic) NSDate *dateEnd;               /*!< Timestamp representing the ed date of Message Center campaign. */

@@ -161,54 +161,35 @@
 -(void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    if (@available(iOS 9.0, *)) {
+    // - background image constraints
+    self.fullScreenBackgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.fullScreenBackgroundImageView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
+    [self.fullScreenBackgroundImageView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor].active = YES;
+    [self.fullScreenBackgroundImageView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor].active = YES;
+    [self.fullScreenBackgroundImageView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
 
-        // - background image constraints
-        self.fullScreenBackgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.fullScreenBackgroundImageView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
-        [self.fullScreenBackgroundImageView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor].active = YES;
-        [self.fullScreenBackgroundImageView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor].active = YES;
-        [self.fullScreenBackgroundImageView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
+    self.buttonsView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.buttonsView.heightAnchor constraintEqualToConstant:65.0f].active = YES;
 
-        self.buttonsView.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.buttonsView.heightAnchor constraintEqualToConstant:65.0f].active = YES;
-
-        self.contentTableView.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        self.cancelButtonView.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.cancelButtonView.widthAnchor constraintEqualToConstant:40.0f].active = YES;
-        [self.cancelButtonView.heightAnchor constraintEqualToConstant:40.0f].active = YES;
+    self.contentTableView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    self.cancelButtonView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.cancelButtonView.widthAnchor constraintEqualToConstant:40.0f].active = YES;
+    [self.cancelButtonView.heightAnchor constraintEqualToConstant:40.0f].active = YES;
         
 #if TARGET_OS_IOS /** exclude tvOS **/
-        if (@available(iOS 11, *)) {
-            [self.buttonsView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
-            [self.buttonsView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor constant: -5].active = YES;
-            [self.buttonsView.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor constant:5].active = YES;
-            
-            [self.contentTableView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
-            [self.contentTableView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor].active = YES;
-            [self.contentTableView.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor].active = YES;
-            [self.contentTableView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-65].active = YES;
-            
-            [self.cancelButtonView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
-            [self.cancelButtonView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor].active = YES;
-        } else {
-            [self.buttonsView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = YES;
-            [self.buttonsView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor constant: -5].active = YES;
-            [self.buttonsView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor constant:5].active = YES;
-            
-            [self.contentTableView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
-            [self.contentTableView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor].active = YES;
-            [self.contentTableView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor].active = YES;
-            [self.contentTableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-65].active = YES;
-            
-            [self.cancelButtonView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = YES;
-            [self.cancelButtonView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor].active = YES;
-        }
+    [self.buttonsView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
+    [self.buttonsView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor constant: -5].active = YES;
+    [self.buttonsView.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor constant:5].active = YES;
+    
+    [self.contentTableView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
+    [self.contentTableView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor].active = YES;
+    [self.contentTableView.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor].active = YES;
+    [self.contentTableView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-65].active = YES;
+    
+    [self.cancelButtonView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
+    [self.cancelButtonView.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor].active = YES;
 #endif
-    } else {
-        // This section is build for iOS 10.0 and above
-    }
 
     // Subscribe to internal notifications and orientation changes
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -257,12 +238,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    if (@available(iOS 7.0, *)) {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
-        self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
-        self.navigationController.navigationBar.translucent = NO;
-    }
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.translucent = NO;
 }
 
 - (void)viewWillLayoutSubviews {
@@ -355,13 +333,10 @@
         case SwrveCallNumberActionType: {
             [SwrveConversationEvents callNumber:conversation onPage:conversationPaneTag withControl:control.tag];
             NSURL *callUrl = [NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", param]];
-            if (@available(iOS 10.0, *)) {
-                [[UIApplication sharedApplication] openURL:callUrl options:@{} completionHandler:^(BOOL success) {
-                    [SwrveLogger debug:@"Opening url [%@] successfully: %d", callUrl, success];
-                }];
-            } else {
-                [SwrveLogger error:@"Could not open url, not supported (should not reach this code)", nil];
-            }
+
+            [[UIApplication sharedApplication] openURL:callUrl options:@{} completionHandler:^(BOOL success) {
+                [SwrveLogger debug:@"Opening url [%@] successfully: %d", callUrl, success];
+            }];
             break;
         }
         case SwrveVisitURLActionType: {
@@ -383,13 +358,9 @@
                 [SwrveLogger error:@"Could not open the Conversation URL: %@", param, nil];
             } else {
                 [SwrveConversationEvents linkVisit:conversation onPage:conversationPaneTag withControl:control.tag];
-                if (@available(iOS 10.0, *)) {
-                    [[UIApplication sharedApplication] openURL:target options:@{} completionHandler:^(BOOL success) {
-                        [SwrveLogger debug:@"Opening url [%@] successfully: %d", target, success];
-                    }];
-                } else {
-                    [SwrveLogger error:@"Could not open url, not supported (should not reach this code)", nil];
-                }
+                [[UIApplication sharedApplication] openURL:target options:@{} completionHandler:^(BOOL success) {
+                    [SwrveLogger debug:@"Opening url [%@] successfully: %d", target, success];
+                }];
             }
             break;
         }
@@ -409,13 +380,9 @@
             }
             NSURL *target = [NSURL URLWithString:param];
             [SwrveConversationEvents deeplinkVisit:conversation onPage:conversationPaneTag withControl:control.tag];
-            if (@available(iOS 10.0, *)) {
-                [[UIApplication sharedApplication] openURL:target options:@{} completionHandler:^(BOOL success) {
-                    [SwrveLogger debug:@"Opening url [%@] successfully: %d", target, success];
-                }];
-            } else {
-                [SwrveLogger error:@"Could not open deeplink, not supported (should not reach this code)", nil];
-            }
+            [[UIApplication sharedApplication] openURL:target options:@{} completionHandler:^(BOOL success) {
+                [SwrveLogger debug:@"Opening url [%@] successfully: %d", target, success];
+            }];
         }
         default:
             break;

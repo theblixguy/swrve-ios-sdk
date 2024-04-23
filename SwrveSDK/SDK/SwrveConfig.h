@@ -120,9 +120,6 @@ typedef void (^SwrveResourcesUpdatedListener) (void);
 /*! The set of Swrve events that will trigger a provisional push notifications request on iOS12+. If you want to request it at app start set the value to a set with "Swrve.session.start" */
 @property (nonatomic, retain) NSSet *provisionalPushNotificationEvents;
 
-/*! The set of Swrve events that will trigger a push notifications request. By default it is set to request the permission at the start of the app. */
-@property (nonatomic, retain) NSSet *pushNotificationEvents __deprecated_msg("Please use pushNotificationPermissionEvents API instead and provide it with Swrve.session.start if you wish to trigger at the start of the app");
-
 /*! The set of Swrve events that will trigger a push notifications request. By default it will not request the permission. */
 @property (nonatomic, retain) NSSet *pushNotificationPermissionEvents;
 
@@ -238,7 +235,6 @@ typedef void (^SwrveResourcesUpdatedListener) (void);
 @property (nonatomic, readonly) BOOL providesAppNotificationSettings;
 @property (nonatomic, readonly) BOOL pushEnabled;
 @property (nonatomic, readonly) NSSet *provisionalPushNotificationEvents;
-@property (nonatomic, readonly) NSSet *pushNotificationEvents;
 @property (nonatomic, retain) NSSet *pushNotificationPermissionEvents;
 @property (nonatomic, readonly) BOOL autoCollectDeviceToken;
 @property (nonatomic, readonly) NSSet *notificationCategories;

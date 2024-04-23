@@ -42,7 +42,7 @@
     return platform;
 }
 
-+ (NSDictionary *)parseURLQueryParams:(NSString *)queryString API_AVAILABLE(ios(7.0)) {
++ (NSDictionary *)parseURLQueryParams:(NSString *)queryString API_AVAILABLE(ios(12.0)) {
     NSMutableDictionary *queryParams = [NSMutableDictionary new];
     NSArray *queryElements = [queryString componentsSeparatedByString:@"&"];
     for (NSString *element in queryElements) {

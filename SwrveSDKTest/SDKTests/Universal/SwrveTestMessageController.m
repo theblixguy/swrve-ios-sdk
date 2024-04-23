@@ -104,7 +104,7 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 @end
 
 @interface SwrveReceiptProvider ()
-- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(8.0));
+- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(12.0));
 @end
 
 @interface SwrveMessageViewController ()
@@ -1107,107 +1107,12 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
     XCTAssertEqualObjects(messageViewController.message.name, @"Kindle");
 }
 
-- (void)testEmbeddedMessageCallback {
-    
-    __block SwrveEmbeddedMessage *embeddedMessage = nil;
-    
-    SwrveConfig *config = [SwrveConfig new];
-    SwrveEmbeddedMessageConfig *embeddedConfig = [SwrveEmbeddedMessageConfig new];
-    [embeddedConfig setEmbeddedMessageCallback:^(SwrveEmbeddedMessage *message) {
-        embeddedMessage = message;
-    }];
-    
-    config.embeddedMessageConfig = embeddedConfig;
-    
-    id swrveMock = [self swrveMockWithTestJson:@"campaignsEmbedded" withConfig:config];
-    SwrveMessageController *controller = [swrveMock messaging];
-    
-    NSDictionary* event =  @{@"type": @"event",
-                             @"seqnum": @1111,
-                             @"name": @"trigger_embedded",
-                             @"payload": @{}};
-    
-    [controller eventRaised:event];
-    
-    XCTAssertNotNil(embeddedMessage);
-    XCTAssertEqualObjects(embeddedMessage.data, @"test string");
-    XCTAssertEqual(embeddedMessage.type, kSwrveEmbeddedDataTypeOther);
-    NSArray<NSString *> *buttons = embeddedMessage.buttons;
-    
-    XCTAssertEqualObjects(buttons[0], @"Button 1");
-    XCTAssertEqualObjects(buttons[1], @"Button 2");
-    XCTAssertEqualObjects(buttons[2], @"Button 3");
-    
-    // Raise a different event for a JSON type embedded Campaign
-    
-    event =  @{@"type": @"event",
-                             @"seqnum": @1111,
-                             @"name": @"embedded_payload",
-               @"payload": @{@"test": @"value"}};
-    
-    [controller eventRaised:event];
-    
-    XCTAssertNotNil(embeddedMessage);
-    XCTAssertEqualObjects(embeddedMessage.data, @"{\"test\": \"json_payload\"}");
-    XCTAssertEqual(embeddedMessage.type, kSwrveEmbeddedDataTypeJson);
-    buttons = embeddedMessage.buttons;
-    
-    XCTAssertEqualObjects(buttons[0], @"Button 1");
-    XCTAssertEqualObjects(buttons[1], @"Button 2");
-    XCTAssertEqualObjects(buttons[2], @"Button 3");
-}
-
 - (void)testEmbeddedPriority {
     id swrveMock = [self swrveMockWithTestJson:@"campaignsEmbedded"];
     SwrveCampaign *campaign = [swrveMock messageCenterCampaignWithID:11111 andPersonalization:nil];
     XCTAssertNotNil(campaign);
     XCTAssertEqual([campaign.priority intValue], 600);
 }
-
-- (void)testEmbeddedMessageWithPersonalizationCallback {
-    
-    __block SwrveEmbeddedMessage *embeddedMessage = nil;
-    __block NSDictionary *personalizationProps = nil;
-    
-    
-    SwrveConfig *config = [SwrveConfig new];
-    
-    SwrveInAppMessageConfig *inAppConfig = [SwrveInAppMessageConfig new];
-    inAppConfig.personalizationCallback = ^NSDictionary *(NSDictionary *eventPayload) {
-        return @{@"testkey": @"WORKING"};
-    };
-    
-    SwrveEmbeddedMessageConfig *embeddedConfig = [SwrveEmbeddedMessageConfig new];
-    [embeddedConfig setEmbeddedMessageCallbackWithPersonalization:^(SwrveEmbeddedMessage *message, NSDictionary *personalizationProperties) {
-        embeddedMessage = message;
-        personalizationProps = personalizationProperties;
-        
-    }];
-    
-    config.embeddedMessageConfig = embeddedConfig;
-    config.inAppMessageConfig = inAppConfig;
-    
-    id swrveMock = [self swrveMockWithTestJson:@"campaignsEmbedded" withConfig:config];
-    SwrveMessageController *controller = [swrveMock messaging];
-    
-    NSDictionary* event =  @{@"type": @"event",
-                             @"seqnum": @1111,
-                             @"name": @"trigger_embedded_personalization",
-                             @"payload": @{}};
-    
-    [controller eventRaised:event];
-    
-    XCTAssertNotNil(embeddedMessage);
-    XCTAssertEqualObjects(embeddedMessage.data, @"PERSONALIZATION: ${testkey}");
-    XCTAssertNotNil(personalizationProps);
-    XCTAssertEqualObjects(personalizationProps[@"testkey"], @"WORKING");
-    XCTAssertEqual(embeddedMessage.type, kSwrveEmbeddedDataTypeOther);
-    NSArray<NSString *> *buttons = embeddedMessage.buttons;
-    
-    XCTAssertEqualObjects(buttons[0], @"Button 1");
-    XCTAssertEqualObjects(buttons[1], @"Button 2");
-}
-
 /**
  * Ensure QA trigger function gets called when QA user is set and message is requested
  */
@@ -1602,15 +1507,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
     SwrveMessageViewController *messageViewController = [self messageViewControllerFrom:controller];
     SwrveMessagePageViewController *pageViewController = [self loadMessagePageViewController:messageViewController];
 
-    __block int customActionCount = 0;
-    __block NSString *customAction;
-
-    // Set custom callbacks
-    [controller setCustomButtonCallback:^(NSString* action, NSString* name) {
-        customActionCount++;
-        customAction = action;
-    }];
-
     SwrveMessageFormat *format = [pageViewController messageFormat];
     SwrveMessagePage *page = [[format pages] objectForKey:[NSNumber numberWithInt:0]];
     NSArray *buttons = [page buttons];
@@ -1645,11 +1541,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
             }
         }
     }
-
-    // Check custom callback was called with correct parameters
-    XCTAssertEqual(customActionCount, 1);
-    XCTAssertNotNil(message);
-    XCTAssertEqualObjects(customAction, @"https://google.com");
     
     // Check if correct event was sent to Swrve for this button
     int clickEventCount = 0;
@@ -1946,100 +1837,10 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 }
 #endif /**TARGET_OS_IOS **/
 
-/**
- * Test dismiss button presses
- * - custom button callback called with correct action
- * - install button callback called with correct appStoreURL
- * - click events sent on custom and install buttons
- */
-- (void)testDismissButtonPressed {
-    id swrveMock = [self swrveMockWithTestJson:@"campaigns"];
-    SwrveMessageController *controller = [swrveMock messaging];
-    
-    id testCapabilitiesDelegateMock = OCMPartialMock([TestCapabilitiesDelegate new]);
-    controller.inAppMessageConfig.inAppCapabilitiesDelegate = testCapabilitiesDelegateMock;
-    
-    SwrveMessage *message = (SwrveMessage *)[controller baseMessageForEvent:@"Swrve.currency_given"];
-    [controller showMessage:message withPersonalization: @{@"test_1":@"some personalized value1", @"test_2":@"some personalized value2"}];
-    
-    SwrveMessageViewController *messageViewController = [self messageViewControllerFrom:controller];
-    SwrveMessagePageViewController *viewController = [self loadMessagePageViewController:messageViewController];
-    [viewController viewDidAppear:NO];
-    
-    __block NSString *campaignSubject = @"";
-    __block NSString *campaignName = @"";
-    __block NSString *buttonName = @"";
-    
-    __block int customActionCount = 0;
-    __block int clipboardActionCount = 0;
-    __block int dismissActionCount = 0;
-    
-    // Set custom callbacks
-    [controller setCustomButtonCallback:^(NSString *action, NSString *name) {
-        customActionCount++;
-    }];
-    
-    [controller setDismissButtonCallback:^(NSString *campaignS, NSString *buttonN, NSString *campaignN) {
-        dismissActionCount++;
-        campaignSubject = campaignS;
-        campaignName = campaignN;
-        buttonName = buttonN;
-    }];
-    
-    [controller setClipboardButtonCallback:^(NSString *processedText) {
-        clipboardActionCount++;
-    }];
-    
-    SwrveMessageFormat *format =[viewController messageFormat];
-    SwrveMessagePage *page = [[format pages] objectForKey:[NSNumber numberWithInt:0]];
-    NSArray *buttons = [page buttons];
-    XCTAssertEqual([buttons count],5);
-    
-    [self verifyDataCapturedFromButtonClick:swrveMock];
-    
-    // Pretend to press all buttons
-    for (NSInteger i = 0; i < [buttons count]; i++) {
-        SwrveButton *swrveButton = [buttons objectAtIndex:i];
-        if ([swrveButton actionType] == kSwrveActionDismiss) {
-            SwrveUIButton *button = [SwrveUIButton new];
-            [button setTag:i];
-            [messageViewController onButtonPressed:button pageId:[NSNumber numberWithLong:page.pageId]];
-            [self waitForWindowDismissed:controller];
-        }
-    }
-    
-    // Ensure custom and install callbacks weren't invoked
-    XCTAssertEqual(customActionCount, 0);
-    XCTAssertEqual(dismissActionCount, 1);
-    XCTAssertEqual(clipboardActionCount, 0);
-    XCTAssertEqualObjects(buttonName, @"close");
-    XCTAssertEqualObjects(campaignSubject, @"IAM subject");
-    XCTAssertEqualObjects(campaignName, @"Kindle");
-    
-    // Check no click events were sent
-    int clickEventCount = 0;
-    for (NSString *event in [swrveMock eventBuffer]) {
-        if ([event rangeOfString:@"Swrve.Messages.Message-165.click"].location != NSNotFound) {
-            clickEventCount++;
-        }
-    }
-    XCTAssertEqual(clickEventCount, 0);
-    
-    OCMVerifyAll((swrveMock));
-}
 
 - (void)testMessageCallbackImpressionAndClipboard {
     SwrveConfig *config = [[SwrveConfig alloc]init];
     SwrveInAppMessageConfig *inAppMessageConfig = OCMPartialMock([SwrveInAppMessageConfig new]);
-    inAppMessageConfig.customButtonCallback = ^(NSString *action, NSString *name) {
-        XCTFail("customButtonCallback should not be called");
-    };
-    inAppMessageConfig.dismissButtonCallback = ^(NSString *campaignSubject, NSString *buttonName, NSString * campaignName) {
-        XCTFail("dismissButtonCallback should not be called");
-    };
-    inAppMessageConfig.clipboardButtonCallback = ^(NSString *processedText) {
-        XCTFail("clipboardButtonCallback should not be called");
-    };
 
     id mockMessageDelegate = OCMProtocolMock(@protocol(SwrveInAppMessageDelegate));
     OCMStub([inAppMessageConfig inAppMessageDelegate]).andReturn(mockMessageDelegate);
@@ -2050,7 +1851,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2066,7 +1866,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2213,15 +2012,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 - (void)testMessageCallbackImpressionAndCustom {
     SwrveConfig *config = OCMPartialMock([SwrveConfig new]);
     SwrveInAppMessageConfig *inAppMessageConfig = OCMPartialMock([SwrveInAppMessageConfig new]);
-    inAppMessageConfig.customButtonCallback = ^(NSString *action, NSString *name) {
-        XCTFail("customButtonCallback should not be called");
-    };
-    inAppMessageConfig.dismissButtonCallback = ^(NSString *campaignSubject, NSString *buttonName, NSString * campaignName) {
-        XCTFail("dismissButtonCallback should not be called");
-    };
-    inAppMessageConfig.clipboardButtonCallback = ^(NSString *processedText) {
-        XCTFail("clipboardButtonCallback should not be called");
-    };
 
     id mockMessageDelegate = OCMProtocolMock(@protocol(SwrveInAppMessageDelegate));
     OCMStub([inAppMessageConfig inAppMessageDelegate]).andReturn(mockMessageDelegate);
@@ -2232,7 +2022,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2248,7 +2037,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2294,15 +2082,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 - (void)testMessageCallbackImpressionAndDismiss {
     SwrveConfig *config = [[SwrveConfig alloc]init];
     SwrveInAppMessageConfig *inAppMessageConfig = OCMPartialMock([SwrveInAppMessageConfig new]);
-    inAppMessageConfig.customButtonCallback = ^(NSString *action, NSString *name) {
-        XCTFail("customButtonCallback should not be called");
-    };
-    inAppMessageConfig.dismissButtonCallback = ^(NSString *campaignSubject, NSString *buttonName, NSString * campaignName) {
-        XCTFail("dismissButtonCallback should not be called");
-    };
-    inAppMessageConfig.clipboardButtonCallback = ^(NSString *processedText) {
-        XCTFail("clipboardButtonCallback should not be called");
-    };
 
     id mockMessageDelegate = OCMProtocolMock(@protocol(SwrveInAppMessageDelegate));
     OCMStub([inAppMessageConfig inAppMessageDelegate]).andReturn(mockMessageDelegate);
@@ -2313,7 +2092,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2329,7 +2107,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
         __unsafe_unretained SwrveMessageDetails *messageDetails;
         [invocation getArgument:&messageDetails atIndex:3];
         
-        XCTAssertEqualObjects(messageDetails.campaignSubject, @"IAM subject");
         XCTAssertEqual(messageDetails.campaignId, 102);
         XCTAssertEqual(messageDetails.variantId, 165);
         XCTAssertEqualObjects(messageDetails.messageName, @"Kindle");
@@ -2373,13 +2150,23 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 }
 
 - (void)testPagingViaButtons {
-    __block BOOL *dismissed = NO;
-    SwrveDismissButtonPressedCallback dismissCallback = ^(NSString *campaignS, NSString *buttonN, NSString *campaignN) {
-        dismissed = YES;
-    };
     SwrveConfig *config = [[SwrveConfig alloc] init];
-    config.inAppMessageConfig.dismissButtonCallback = dismissCallback;
+    
+    SwrveInAppMessageConfig *inAppMessageConfig = OCMPartialMock([SwrveInAppMessageConfig new]);
 
+    id mockMessageDelegate = OCMProtocolMock(@protocol(SwrveInAppMessageDelegate));
+    OCMStub([inAppMessageConfig inAppMessageDelegate]).andReturn(mockMessageDelegate);
+    config.inAppMessageConfig = inAppMessageConfig;
+    
+    __block BOOL dismissed = NO;
+    [OCMExpect([mockMessageDelegate onAction:SwrveActionDismiss messageDetails:OCMOCK_ANY selectedButton:OCMOCK_ANY]) andDo:^(NSInvocation *invocation) {
+        dismissed = YES;
+        __unsafe_unretained SwrveMessageButtonDetails *button;
+        [invocation getArgument:&button atIndex:4];
+        XCTAssertEqual(button.actionType, kSwrveActionDismiss);
+        XCTAssertEqualObjects(button.actionString, @"");
+    }];
+    
     NSArray *assets = @[@"6c871366c876fdb495d96eff3d2905f9d4594c62"];
     [SwrveTestHelper createDummyAssets:assets];
     id swrveMock = [self swrveMockWithTestJson:@"campaigns_multipage" withConfig:config];
@@ -2391,7 +2178,7 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
   
     SwrveMessageViewController *messageViewController = [self messageViewControllerFrom:controller];
     [messageViewController viewDidAppear:NO];
-    SwrveMessagePageViewController *pageViewController = [self loadMessagePageViewController:messageViewController];
+    [self loadMessagePageViewController:messageViewController];
 
     XCTAssertEqual([[messageViewController currentPageId] integerValue], 1);
     SwrveMessageUIView *messageUiView = [self swrveMessageUIViewFromController:messageViewController];
@@ -2778,93 +2565,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 }
 
 /**
- * Test actions when clipboard button pressed
- * - clipboard button callback called with correct action
- * - click event sent
- */
-- (void)testClipboardButtonPressed {
-    id swrveMock = [self swrveMockWithTestJson:@"campaigns"];
-    SwrveMessageController *controller = [swrveMock messaging];
-
-    id testCapabilitiesDelegateMock = OCMPartialMock([TestCapabilitiesDelegate new]);
-    controller.inAppMessageConfig.inAppCapabilitiesDelegate = testCapabilitiesDelegateMock;
-
-    SwrveMessage *message = (SwrveMessage *)[controller baseMessageForEvent:@"Swrve.currency_given"];
-    [controller showMessage:message withPersonalization: @{@"test_1":@"some personalized value1", @"test_2":@"some personalized value2"}];
-
-    SwrveMessageViewController *messageViewController = [self messageViewControllerFrom:controller];
-    SwrveMessagePageViewController *viewController = [self loadMessagePageViewController:messageViewController];
-    [viewController viewDidAppear:NO];
-
-    __block int clipboardActionCount = 0;
-    __block NSString *clipboardAction;
-
-    // Set clipboard callbacks
-    [controller setClipboardButtonCallback:^(NSString* action) {
-        clipboardActionCount++;
-        clipboardAction = action;
-    }];
-
-    SwrveMessageFormat *format = [viewController messageFormat];
-    SwrveMessagePage *page = [[format pages] objectForKey:[NSNumber numberWithInt:0]];
-    NSArray *buttons = [page buttons];
-    XCTAssertEqual([buttons count], 5);
-
-    // access the UIViews in the subview of the SwrveMessageViewController
-    NSArray *vcSubviews = [[[[viewController view] subviews] firstObject] subviews];
-    NSMutableArray *uiButtons = [NSMutableArray new];
-
-    // get all the buttons
-    for (UIView *item in vcSubviews){
-        if ([item isKindOfClass:[SwrveUIButton class]]) {
-            [uiButtons addObject:item];
-        }
-    }
-
-    XCTAssertEqual([uiButtons count], 5);
-
-    [self verifyDataCapturedFromButtonClick:swrveMock];
-    for (NSInteger i = 0; i < [buttons count]; i++) {
-        SwrveButton *swrveButton = [buttons objectAtIndex:i];
-
-        // verify that a SwrveUIButton matching the accessibility id
-        if ([swrveButton actionType] == kSwrveActionClipboard) {
-            for (SwrveUIButton *button in uiButtons){
-                if ([button.accessibilityIdentifier isEqualToString:swrveButton.name]) {
-                    // pretend to press it
-                    SwrveMessageUIView *swrveMessageUIView = (SwrveMessageUIView*) [button superview];
-                    [swrveMessageUIView onButtonPressed:button];
-                    [self waitForWindowDismissed:controller];
-                }
-            }
-        }
-    }
-
-    // Check clipboard callback was called with correct parameters
-    XCTAssertEqual(clipboardActionCount, 1);
-    XCTAssertNotNil(message);
-    XCTAssertEqualObjects(clipboardAction, @"test");
-
-#if TARGET_OS_IOS /** exclude tvOS **/
-        // verify (on iOS) that the value was copied to clipboard
-        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-        XCTAssertEqualObjects(pasteboard.string, @"test");
-#endif /**TARGET_OS_IOS **/
-
-    // Check if correct event was sent to Swrve for this button
-    int clickEventCount = 0;
-    for (NSString *event in [swrveMock eventBuffer]) {
-        if ([event rangeOfString:@"Swrve.Messages.Message-165.click"].location != NSNotFound) {
-            clickEventCount++;
-            // Assert that the event contains the name of the button in the payload
-            XCTAssertTrue([event rangeOfString:@"{\"name\":\"clipboard_action\",\"embedded\":\"false\"}"].location != NSNotFound);
-        }
-    }
-    XCTAssertEqual(clickEventCount, 1);
-    OCMVerifyAll(swrveMock);
-}
-
-/**
  * Test actions when capability button pressed
  * - delegate called
  * - click event sent
@@ -3041,67 +2741,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
 }
 
 #endif //TARGET_OS_IOS
-
-- (void)testEmbeddedImpressionAndEngagement {
-    
-    __block SwrveEmbeddedMessage *embeddedMessage = nil;
-    __block id swrveMock = nil;
-    
-    SwrveConfig *config = [SwrveConfig new];
-    
-    // add this to test that an embedded campaign doesn't trigger a capability check
-    id testCapabilitiesDelegateMock = OCMPartialMock([TestCapabilitiesDelegate new]);
-    config.inAppMessageConfig.inAppCapabilitiesDelegate = testCapabilitiesDelegateMock;
-    
-    SwrveEmbeddedMessageConfig *embeddedConfig = [SwrveEmbeddedMessageConfig new];
-    [embeddedConfig setEmbeddedMessageCallback:^(SwrveEmbeddedMessage *message) {
-        embeddedMessage = message;
-        [[swrveMock messaging] embeddedMessageWasShownToUser:message];
-        [[swrveMock messaging] embeddedButtonWasPressed:message buttonName:message.buttons[0]];
-    }];
-    
-    config.embeddedMessageConfig = embeddedConfig;
-    
-    swrveMock = [self swrveMockWithTestJson:@"campaignsEmbedded" withConfig:config];
-    SwrveMessageController *controller = [swrveMock messaging];
-    
-    NSDictionary* event =  @{@"type": @"event",
-                             @"seqnum": @1111,
-                             @"name": @"trigger_embedded",
-                             @"payload": @{}};
-    
-    [controller eventRaised:event];
-    
-    XCTAssertNotNil(embeddedMessage);
-    XCTAssertEqualObjects(embeddedMessage.data, @"test string");
-    XCTAssertEqual(embeddedMessage.type, kSwrveEmbeddedDataTypeOther);
-    NSArray<NSString *> *buttons = embeddedMessage.buttons;
-    
-    XCTAssertEqualObjects(buttons[0], @"Button 1");
-    XCTAssertEqualObjects(buttons[1], @"Button 2");
-    XCTAssertEqualObjects(buttons[2], @"Button 3");
-
-    // Check if correct events have sent to Swrve from these calls in the callback
-    int clickEventCount = 0;
-    for (NSString* event in [swrveMock eventBuffer]) {
-        
-        if ([event rangeOfString:@"Swrve.Messages.Message-20.impression"].location != NSNotFound) {
-            clickEventCount++;
-
-            // Assert that the event contains the embedded bool in the payload
-            XCTAssertTrue([event rangeOfString:@"{\"embedded\":\"true\"}"].location != NSNotFound);
-        }
-        
-        if ([event rangeOfString:@"Swrve.Messages.Message-20.click"].location != NSNotFound) {
-            clickEventCount++;
-            
-            // Assert that the event contains the button and embedded bool in the payload
-            XCTAssertTrue([event rangeOfString:@"{\"name\":\"Button 1\",\"embedded\":\"true\"}"].location != NSNotFound);
-        }
-    }
-    XCTAssertEqual(clickEventCount, 2);
-}
-
 /**
  * When a QA user has resetDevice set to YES the max impression count shouldn't apply
  */
@@ -3447,71 +3086,6 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
     [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
 }
 #endif //TARGET_OS_IOS
-
-/**
- * Test that setting custom action listener works
- */
-- (void)testCustomActionListener {
-    __block NSString *customActionResult = @"";
-    __block NSString *campaignNameResult = @"";
-
-    SwrveCustomButtonPressedCallback customCallback = ^(NSString* action, NSString *campaignName) {
-        customActionResult = action;
-        campaignNameResult = campaignName;
-    };
-    
-    SwrveConfig *config = [[SwrveConfig alloc] init];
-    config.inAppMessageConfig.customButtonCallback = customCallback;
-    
-    id swrveMock = [self swrveMockWithTestJson:@"campaigns" withConfig:config];
-    [swrveMock messaging].customButtonCallback(@"CustomAction", @"CampaignName");
-
-    XCTAssertEqualObjects(customActionResult, @"CustomAction");
-    XCTAssertEqualObjects(campaignNameResult, @"CampaignName");
-}
-
-/**
- * Test that setting dismiss action listener works
- */
-- (void)testDismissActionListener {
-    __block NSString *campaignSubject = @"";
-    __block NSString *buttonName = @"";
-    __block NSString *campaignName = @"";
-
-    SwrveDismissButtonPressedCallback dismissCallback = ^(NSString *campaignS, NSString *buttonN, NSString *campaignN) {
-        campaignSubject = campaignS;
-        buttonName = buttonN;
-        campaignName = campaignN;
-    };
-    
-    SwrveConfig *config = [[SwrveConfig alloc] init];
-    config.inAppMessageConfig.dismissButtonCallback = dismissCallback;
-
-    id swrveMock = [self swrveMockWithTestJson:@"campaigns" withConfig:config];
-    [swrveMock messaging].dismissButtonCallback(@"campaignSubject", @"btnClose", @"campaignName");
-
-    XCTAssertEqualObjects(campaignSubject, @"campaignSubject");
-    XCTAssertEqualObjects(buttonName, @"btnClose");
-    XCTAssertEqualObjects(campaignName, @"campaignName");
-}
-
-/**
- * Test that setting personalized text button action listener works
- */
-- (void)testClipboardButtonActionListener {
-    __block NSString *clipboardButtonProcessedTextResult = @"";
-    SwrveClipboardButtonPressedCallback clipboardButtonPressedCallback = ^(NSString* processedText) {
-        clipboardButtonProcessedTextResult = processedText;
-    };
-    
-    SwrveConfig *config = [[SwrveConfig alloc] init];
-    config.inAppMessageConfig.clipboardButtonCallback = clipboardButtonPressedCallback;
-    
-    id swrveMock = [self swrveMockWithTestJson:@"campaigns" withConfig:config];
-    [swrveMock messaging].clipboardButtonCallback(@"ProcessedText");
-
-    XCTAssertEqualObjects(clipboardButtonProcessedTextResult, @"ProcessedText");
-}
 
 
 /**
@@ -4373,18 +3947,12 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
     NSTextAlignment alignment = NSTextAlignmentLeft;
     
     UIFont *expectedFont = nil;
-    if (@available(iOS 11.0,tvOS 11.0, *)) {
 #if TARGET_OS_IOS
-        UIFontMetrics *metircs = [UIFontMetrics metricsForTextStyle:UIFontTextStyleBody];
-        expectedFont = [metircs scaledFontForFont:[UIFont systemFontOfSize:18]];
+    UIFontMetrics *metircs = [UIFontMetrics metricsForTextStyle:UIFontTextStyleBody];
+    expectedFont = [metircs scaledFontForFont:[UIFont systemFontOfSize:18]];
 #else
-        expectedFont = [UIFont systemFontOfSize:18];
+    expectedFont = [UIFont systemFontOfSize:18];
 #endif
-
-    } else {
-        expectedFont = [UIFont systemFontOfSize:18];
-    }
-   
 
     UIFont *font = [UIFont systemFontOfSize:12];
     

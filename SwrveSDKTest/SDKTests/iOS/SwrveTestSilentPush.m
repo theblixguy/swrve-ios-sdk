@@ -6,7 +6,7 @@
 
 @interface SwrvePush()
 + (SwrvePush *)sharedInstance;
-- (BOOL)handleSilentPushNotification:(NSDictionary *)userInfo withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *)) completionHandler API_AVAILABLE(ios(7.0));
+- (BOOL)handleSilentPushNotification:(NSDictionary *)userInfo withCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *)) completionHandler API_AVAILABLE(ios(12.0));
 @end
 
 @interface SwrveTestSilentPush : XCTestCase

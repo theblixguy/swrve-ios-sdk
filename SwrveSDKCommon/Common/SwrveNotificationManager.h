@@ -6,7 +6,7 @@
 #if !TARGET_OS_TV
 
 + (void) handleContent:(UNNotificationContent *)notificationContent
-withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completion __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0);
+withCompletionCallback:(void (^)(UNMutableNotificationContent *content))completion;
 
 + (NSURL *)notificationResponseReceived:(NSString *)identifier withUserInfo:(NSDictionary *)userInfo;
 

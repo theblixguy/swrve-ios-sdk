@@ -148,11 +148,15 @@
 }
 
 #if TARGET_OS_IOS
+
+- (void)sendDeviceUpdate {
+}
+
 - (void)setDeviceToken:(NSData*)deviceToken {
 #pragma unused(deviceToken)
 }
 
-- (void)processNotificationResponse:(UNNotificationResponse *)response __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
+- (void)processNotificationResponse:(UNNotificationResponse *)response {
 #pragma unused(response)
 }
 
@@ -160,7 +164,7 @@
     return nil;
 }
 
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0)) {
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0)) {
 #pragma unused(userInfo, completionHandler)
     return NO;
 }

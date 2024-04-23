@@ -169,10 +169,10 @@
     XCTAssertNotNil([deviceInfo objectForKey:@"Swrve.permission.ios.push_bg_refresh"]);
     
     // IDFA & Device Info count
-    if (@available(iOS 16.2, *)) {
+    if (@available(iOS 17.2, *)) {
+        XCTAssertEqual([deviceInfo count], 25);
+    } else if (@available(iOS 16.2, *)) {
         XCTAssertEqual([deviceInfo count], 24);
-    } else if (@available(iOS 16.1, *)) {
-        XCTAssertEqual([deviceInfo count], 23);
     } else {
         XCTAssertEqual([deviceInfo count], 22);
     }
@@ -204,10 +204,10 @@
     
     XCTAssertNotNil(deviceInfo);
     
-    if (@available(iOS 16.2, *)) {
+    if (@available(iOS 17.2, *)) {
+        XCTAssertEqual([deviceInfo count], 31);
+    } else if (@available(iOS 16.2, *)) {
         XCTAssertEqual([deviceInfo count], 30);
-    } else if (@available(iOS 16.1, *)) {
-        XCTAssertEqual([deviceInfo count], 29);
     } else {
         XCTAssertEqual([deviceInfo count], 28);
     }

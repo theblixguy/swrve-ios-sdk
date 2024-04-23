@@ -21,7 +21,6 @@
 @synthesize pushEnabled;
 @synthesize providesAppNotificationSettings;
 @synthesize provisionalPushNotificationEvents;
-@synthesize pushNotificationEvents;
 @synthesize pushNotificationPermissionEvents;
 @synthesize autoCollectDeviceToken;
 @synthesize notificationCategories;
@@ -55,10 +54,6 @@
         self.pushEnabled = NO;
         self.providesAppNotificationSettings = NO;
         self.provisionalPushNotificationEvents = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.pushNotificationEvents = [NSSet setWithObject:@"Swrve.session.start"];
-#pragma clang diagnostic pop
         self.autoCollectDeviceToken = YES;
 #endif //TARGET_OS_IOS
         self.autoShowMessagesMaxDelay = 5000;
@@ -98,7 +93,6 @@
 @synthesize pushEnabled;
 @synthesize providesAppNotificationSettings;
 @synthesize provisionalPushNotificationEvents;
-@synthesize pushNotificationEvents;
 @synthesize pushNotificationPermissionEvents;
 @synthesize autoCollectDeviceToken;
 @synthesize notificationCategories;
@@ -137,10 +131,6 @@
         providesAppNotificationSettings = config.providesAppNotificationSettings;
         pushEnabled = config.pushEnabled;
         provisionalPushNotificationEvents = config.provisionalPushNotificationEvents;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        pushNotificationEvents = config.pushNotificationEvents;
-#pragma clang diagnostic pop
         pushNotificationPermissionEvents = config.pushNotificationPermissionEvents;
         autoCollectDeviceToken = config.autoCollectDeviceToken;
         notificationCategories = config.notificationCategories;

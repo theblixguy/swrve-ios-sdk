@@ -5,3 +5,6 @@
 #import "SwrveSDK.h"
 
 #endif /* SwrveSDK_iOSTests_Bridging_Header_h */
+
+#import "SwrveTestHelper.h"
+

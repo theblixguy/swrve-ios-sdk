@@ -64,7 +64,7 @@ extension ViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCenterCell", for: indexPath)
         let baseCampaign = campaigns[indexPath.row] as? SwrveCampaign
-        cell.textLabel?.text = baseCampaign?.subject
+        cell.textLabel?.text = baseCampaign?.messageCenterDetails.subject
 
         let dformat : DateFormatter = DateFormatter()
         dformat.dateFormat = "MMMM dd, yyyy (EEEE) HH:mm:ss z Z"

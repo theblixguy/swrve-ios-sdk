@@ -8,7 +8,7 @@
    },
    "campaigns":[
        {
-           "id":102,
+           "id": 102,
            "end_date":1364568900000,
            "triggers":[],
            "message_center": true,

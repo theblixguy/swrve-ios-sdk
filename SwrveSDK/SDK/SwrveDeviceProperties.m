@@ -46,7 +46,7 @@ static NSString* SWRVE_DEVICE_TYPE =                    @"swrve.device_type";
 static NSString* SWRVE_TRACKING_STATE =                 @"swrve.tracking_state";
 static NSString* SWRVE_LIVE_ACTIVITIES =                @"swrve.permission.ios.live_activities";
 static NSString* SWRVE_LIVE_ACTIVITIES_FREQUENT_UPDATES = @"swrve.permission.ios.live_activities_frequent_updates";
-
+static NSString* SWRVE_LIVE_ACTIVITIES_PUSH_TO_START_TOKEN = @"swrve.push_to_start_token";
 static NSString* PLATFORM =                             @"iOS "; // with trailing space
 
 #if SWRVE_MODULE && TARGET_OS_IOS
@@ -95,7 +95,9 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
         self.sdk_language = sdk_language;
         self.swrveInitMode = initMode;
 #if SWRVE_MODULE
-        self.liveActivityProvider = [[SwrveLiveActivity alloc] init];
+        if (@available(iOS 16.2, *)) {
+            self.liveActivityProvider = [[SwrveLiveActivity alloc] init];
+        }
 #endif
     }
     return self;
@@ -179,7 +181,7 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
 #if TARGET_OS_IOS /** retrieve the properties only supported by iOS **/
 #if SWRVE_MODULE
     // ios Live Activities
-    if (@available(iOS 16.1, *)) {
+    if (@available(iOS 16.2, *)) {
         NSString *value = [self.liveActivityProvider areActivitiesEnabled] ? swrve_permission_status_authorized : swrve_permission_status_denied ;
         [deviceProperties setValue:value forKey:SWRVE_LIVE_ACTIVITIES];
     }
@@ -188,6 +190,14 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
         NSString *value = [self.liveActivityProvider frequentPushesEnabled] ? swrve_permission_status_authorized : swrve_permission_status_denied;
         [deviceProperties setValue:value forKey:SWRVE_LIVE_ACTIVITIES_FREQUENT_UPDATES];
     }
+    
+    if (@available(iOS 17.2, *)) {
+        NSString *pushToStartToken = self.liveActivityProvider.pushToStartToken;
+        if (pushToStartToken != nil) {
+            [deviceProperties setValue:pushToStartToken forKey:SWRVE_LIVE_ACTIVITIES_PUSH_TO_START_TOKEN];
+        }
+    }
+    
 #endif
     [deviceProperties setValue:[NSNumber numberWithInteger:self.conversationVersion] forKey:SWRVE_CONVERSION_VERSION];
     

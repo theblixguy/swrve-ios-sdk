@@ -157,13 +157,9 @@
 
     // Check if the navigation is coming from a user clicking on a link
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated) {
-        if (@available(iOS 10.0, *)) {
-            [[UIApplication sharedApplication] openURL:[nsurl URL] options:@{} completionHandler:^(BOOL success) {
-                [SwrveLogger debug:@"Opening url [%@] successfully: %d", nsurl, success];
-            }];
-        } else {
-            [SwrveLogger error:@"Could not open url, not supported (should not reach this code)", nil];
-        }
+        [[UIApplication sharedApplication] openURL:[nsurl URL] options:@{} completionHandler:^(BOOL success) {
+            [SwrveLogger debug:@"Opening url [%@] successfully: %d", nsurl, success];
+        }];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
@@ -171,19 +167,12 @@
     // Check if the youtube link that is opening is the logo that redirects to the full website
     if (nsurl != nil) {
         NSString *url = [[nsurl URL] absoluteString];
-        if (@available(iOS 8.0, *)) {
-            if ([url containsString:@"youtube.com/"] && ![url containsString:@"youtube.com/embed/"]) {
-                if (@available(iOS 10.0, *)) {
-                    [[UIApplication sharedApplication] openURL:[nsurl URL] options:@{} completionHandler:^(BOOL success) {
-                        [SwrveLogger debug:@"Opening url [%@] successfully: %d", nsurl, success];
-                    }];
-                } else {
-                    [SwrveLogger error:@"Could not open url, not supported (should not reach this code)", nil];
-                }
-                decisionHandler(WKNavigationActionPolicyCancel);
-                return;
-
-            }
+        if ([url containsString:@"youtube.com/"] && ![url containsString:@"youtube.com/embed/"]) {
+            [[UIApplication sharedApplication] openURL:[nsurl URL] options:@{} completionHandler:^(BOOL success) {
+                [SwrveLogger debug:@"Opening url [%@] successfully: %d", nsurl, success];
+            }];
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return;
         }
     }
 

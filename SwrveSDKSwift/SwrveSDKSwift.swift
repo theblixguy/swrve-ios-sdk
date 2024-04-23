@@ -9,39 +9,25 @@ import ActivityKit
 #if canImport(ActivityKit)
 
 extension SwrveSDKSwift {
+    
     /**
-     Starts tracking an activity with specified attributes.
+     Starts observing an activity with specified attributes. Please note that Live Activity being started with empty actvity id will not be tracked.
      
-     - Parameter activityId: An identifier for the activity.
-     - Parameter activity: The activity object containing details and attributes to be tracked.
+     - Parameter attributeType: A attributes type of activity which must conform to SwrveLiveActivityAttributes.
      - Returns: Void.
      
      - Usages:
          ```
-         let myActivity = Activity<MyAttributes>()
-         SwrveSDKSwift.startLiveActivityTracking(activityId: "someId", activity: myActivity)
+        SwrveSDKSwift.registerLiveActivity(ofType: MyAttributes.self)
+     
          ```
      */
-    @available(iOSApplicationExtension 10.0, iOS 16.1, *)
-    class public func startLiveActivityTracking<T: ActivityAttributes>(activityId: String, activity: Activity<T>) {
-        SwrveLiveActivity.startTracking(activityId: activityId, activity: activity)
-    }
     
-    /**
-     Resumes tracking of all activity of given activity type
-     
-     - Parameter activityType: The activity type containing type of attributes to be tracked.
-     - Returns: Void.
-     
-     - Usage:
-         ```
-         SwrveSDKSwift.resumeLiveActivityTracking(ofType: Activity<MyAttributes>.self)
-         ```
-     */
-    @available(iOSApplicationExtension 10.0, iOS 16.1, *)
-    class public func resumeLiveActivityTracking<T: ActivityAttributes>(ofType activityType: Activity<T>.Type) {
-        SwrveLiveActivity.resumeTracking(ofType: activityType)
-    }
+    @available(iOS 16.2, *)
+    class public func registerLiveActivity<T: SwrveLiveActivityAttributes>(
+        ofType attributesType: T.Type) {
+            SwrveLiveActivity.registerActivity(ofType: attributesType)
+        }
     
 }
 

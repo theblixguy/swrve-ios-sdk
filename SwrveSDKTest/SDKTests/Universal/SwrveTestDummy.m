@@ -33,7 +33,7 @@
 
 - (void)testOSVersions {
     // Test unsupported OS versions (should return SwrveEmpty)
-    NSArray *unsupportedOsVersions = @[@"6.0", @"6.1", @"7.0", @"7.2", @"8.0", @"9.0"];
+    NSArray *unsupportedOsVersions = @[@"6.0", @"6.1", @"7.0", @"7.2", @"8.0", @"9.0",@"10.0", @"11.0"];
     for(NSString *osVersion in unsupportedOsVersions) {
         id mockCurrentDevice = OCMPartialMock([UIDevice currentDevice]);
         OCMStub([(UIDevice*)mockCurrentDevice systemVersion]).andReturn(osVersion);
@@ -49,7 +49,7 @@
     }
 
     // Test supported OS versions (should return Swrve instance)
-    NSArray *supportedOsVersions = @[@"10.0", @"11.0", @"12.0"];
+    NSArray *supportedOsVersions = @[@"12.0"];
     for(NSString *osVersion in supportedOsVersions) {
         id mockCurrentDevice = OCMPartialMock([UIDevice currentDevice]);
         OCMStub([(UIDevice*)mockCurrentDevice systemVersion]).andReturn(osVersion);

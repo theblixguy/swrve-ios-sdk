@@ -10,7 +10,7 @@
 #import "SwrveRESTClient.h"
 
 @interface SwrveReceiptProvider()
-- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(8.0));
+- (NSData *)readMainBundleAppStoreReceipt API_AVAILABLE(ios(12.0));
 @end
 
 @interface Swrve()

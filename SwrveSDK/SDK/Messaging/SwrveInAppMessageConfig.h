@@ -11,24 +11,6 @@
 #import "SwrveInAppCapabilitiesDelegate.h"
 #endif
 
-/*! A block that will be called when a custom button in an in-app message
- * is pressed.
- * WARNING: this callback is now deprecated and will be removed soon.  See SwrveMessageDetailsCallback
- */
-typedef void (^SwrveCustomButtonPressedCallback)(NSString *action, NSString *campaignName);
-
-/*! A block that will be called when a dismiss button in an in-app message
- * is pressed.
- * WARNING: this callback is now deprecated and will be removed soon.  See SwrveMessageDetailsCallback
- */
-typedef void (^SwrveDismissButtonPressedCallback)(NSString *campaignSubject, NSString *buttonName, NSString *campaignName);
-
-/*! A block that will be called when a clipboard button in an in-app message
- * is pressed.
- * WARNING: this callback is now deprecated and will be removed soon. See SwrveMessageDetailsCallback
- */
-typedef void (^SwrveClipboardButtonPressedCallback)(NSString *processedText);
-
 /*! A block that will be called when an event triggers an in-app message with personalization
  * \param eventPayload the payload associated with the message
  * \returns NSDictionary of key / value strings used for personalising the IAM
@@ -55,15 +37,6 @@ typedef NSDictionary *(^SwrveMessagePersonalizationCallback)(NSDictionary *event
 
 /*! in-app text font used for all personalized text, can be overridden by server value */
 @property (nonatomic, retain) UIFont *personalizationFont;
-
-/*!< Implement this delegate to process custom button actions. */
-@property(nonatomic, copy) SwrveCustomButtonPressedCallback customButtonCallback __deprecated_msg("Please use SwrveInAppMessageDelegate instead");
-
-/*!< Implement this delegate to process dismiss button action. */
-@property(nonatomic, copy) SwrveDismissButtonPressedCallback dismissButtonCallback __deprecated_msg("Please use SwrveInAppMessageDelegate instead");
-
-/*!< Implement this delegate to intercept clipboard button actions. */
-@property(nonatomic, copy) SwrveClipboardButtonPressedCallback clipboardButtonCallback __deprecated_msg("Please use SwrveInAppMessageDelegate instead");
 
 /*!< Implement this delegate to intercept IAM calls with personalization . */
 @property(nonatomic, copy) SwrveMessagePersonalizationCallback personalizationCallback;

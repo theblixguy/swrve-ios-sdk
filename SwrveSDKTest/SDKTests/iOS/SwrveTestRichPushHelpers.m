@@ -379,10 +379,9 @@
     
     UNNotificationCategory *category = [SwrveNotificationManager categoryFromUserInfo:userInfo];
     XCTAssertNotNil(category);
-    if(@available(iOS 11.0,*)){
-        XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowTitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowTitle should have membership");
-        XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowSubtitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowSubtitle should have membership");
-    }
+    XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowTitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowTitle should have membership");
+    XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowSubtitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowSubtitle should have membership");
+
     XCTAssertTrue(category.options & UNNotificationCategoryOptionAllowInCarPlay, @"UNNotificationCategoryOptionAllowInCarPlay should have membership");
     XCTAssertFalse(category.options & UNNotificationCategoryOptionCustomDismissAction, @"UNNotificationCategoryOptionCustomDismissAction shouldn't have membership");
 }
@@ -396,11 +395,9 @@
     
     UNNotificationCategory *category = [SwrveNotificationManager categoryFromUserInfo:userInfo];
     XCTAssertNotNil(category);
-    if(@available(iOS 11.0,*)){
-        XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowTitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowTitle should have membership");
-        XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowSubtitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowSubtitle should have membership");
-        XCTAssertEqualObjects(category.hiddenPreviewsBodyPlaceholder, @"test placeholder");
-    }
+    XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowTitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowTitle should have membership");
+    XCTAssertTrue(category.options & UNNotificationCategoryOptionHiddenPreviewsShowSubtitle, @"On iOS 11+ UNNotificationCategoryOptionHiddenPreviewsShowSubtitle should have membership");
+    XCTAssertEqualObjects(category.hiddenPreviewsBodyPlaceholder, @"test placeholder");
     XCTAssertTrue(category.options & UNNotificationCategoryOptionAllowInCarPlay, @"UNNotificationCategoryOptionAllowInCarPlay should have membership");
     XCTAssertFalse(category.options & UNNotificationCategoryOptionCustomDismissAction, @"UNNotificationCategoryOptionCustomDismissAction shouldn't have membership");
 }
@@ -440,22 +437,12 @@
     
     result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsCarPlayKey]];
     XCTAssertTrue(result == UNNotificationCategoryOptionAllowInCarPlay);
+    result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowTitleKey]];
+    XCTAssertTrue(result == UNNotificationCategoryOptionHiddenPreviewsShowTitle);
     
-    if(@available(iOS 11.0,*)){
-        result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowTitleKey]];
-        XCTAssertTrue(result == UNNotificationCategoryOptionHiddenPreviewsShowTitle);
-        
-        result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowSubtitleKey]];
-        XCTAssertTrue(result == UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
-        
-    } else {
-        result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowTitleKey]];
-        XCTAssertTrue(result == UNNotificationCategoryOptionNone);
-        
-        result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowSubtitleKey]];
-        XCTAssertTrue(result == UNNotificationCategoryOptionNone);
-    }
-    
+    result = [SwrveNotificationOptions categoryOptionsForKeys:@[SwrveNotificationCategoryTypeOptionsHiddenShowSubtitleKey]];
+    XCTAssertTrue(result == UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
+
     NSArray *multipleOptions = @[SwrveNotificationCategoryTypeOptionsCarPlayKey, SwrveNotificationCategoryTypeOptionsCustomDismissKey];
     
     //test bitwise membership

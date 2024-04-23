@@ -29,12 +29,6 @@
     NSDictionary *messageDict = [json objectForKey:@"message"];
     self.message = [[SwrveMessage alloc] initWithDictionary:messageDict forCampaign:self forController:controller];
     [self addAssetsToQueue:assetsQueue withPersonalization:personalization];
-    if ([json objectForKey:@"subject"] != [NSNull null] && [json objectForKey:@"subject"] != nil) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.subject = [json objectForKey:@"subject"];
-#pragma clang diagnostic pop
-    }
     
     self.name = self.message.name;
 

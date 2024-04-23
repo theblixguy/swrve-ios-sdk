@@ -372,22 +372,11 @@
     CGFloat leftPadding = storySettings.leftPadding.floatValue * renderScale;
     CGFloat rightPadding = storySettings.rightPadding.floatValue * renderScale;
     self.storyView.translatesAutoresizingMaskIntoConstraints = NO;
-    if (@available(iOS 11.0, tvOS 11.0, *)) {
-        [NSLayoutConstraint activateConstraints:@[
-                [self.storyView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:topPadding],
-                [self.storyView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor constant:leftPadding],
-                [self.storyView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor constant:-rightPadding]
-        ]];
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [NSLayoutConstraint activateConstraints:@[
-                [self.storyView.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:topPadding],
-                [self.storyView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor constant:leftPadding],
-                [self.storyView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor constant:-rightPadding]
-        ]];
-#pragma clang diagnostic pop
-    }
+    [NSLayoutConstraint activateConstraints:@[
+        [self.storyView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:topPadding],
+        [self.storyView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor constant:leftPadding],
+        [self.storyView.rightAnchor constraintEqualToAnchor:self.view.rightAnchor constant:-rightPadding]
+    ]];
 }
 
 - (void)addDismissButton:(CGFloat)renderScale {
@@ -395,7 +384,7 @@
     if (storySettings.dismissButton == nil) {
         return;
     }
-
+    
     UIImage *dismissImage = nil;
     UIImage *dismissImageHighlighted = nil;
     SwrveMessageController *messageControllerStrong = self.messageController;
@@ -409,36 +398,25 @@
     if (dismissImage == nil) {
         return;
     }
-
+    
     self.storyDismissButton = [[SwrveInAppStoryUIButton alloc] initWithButton:storySettings.dismissButton
                                                                  dismissImage:dismissImage
                                                       dismissImageHighlighted:dismissImageHighlighted];
     [self.view addSubview:self.storyDismissButton];
-
+    
     CGFloat topPadding = storySettings.topPadding.floatValue * renderScale;
     CGFloat height = storySettings.barHeight.floatValue * renderScale;
     CGFloat marginTop = storySettings.dismissButton.marginTop.floatValue * renderScale;
     CGFloat topAnchorConstant = topPadding + height + marginTop;
     CGFloat size = storySettings.dismissButton.size.floatValue * renderScale;
-    if (@available(iOS 11.0, tvOS 11.0, *)) {
-        [NSLayoutConstraint activateConstraints:@[
-                [self.storyDismissButton.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:topAnchorConstant],
-                [self.storyDismissButton.rightAnchor constraintEqualToAnchor:self.storyView.rightAnchor],
-                [self.storyDismissButton.widthAnchor constraintEqualToConstant:size],
-                [self.storyDismissButton.heightAnchor constraintEqualToConstant:size]
-        ]];
-    } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [NSLayoutConstraint activateConstraints:@[
-                [self.storyDismissButton.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:topAnchorConstant],
-                [self.storyDismissButton.rightAnchor constraintEqualToAnchor:self.storyView.rightAnchor],
-                [self.storyDismissButton.widthAnchor constraintEqualToConstant:size],
-                [self.storyDismissButton.heightAnchor constraintEqualToConstant:size]
-        ]];
-#pragma clang diagnostic pop
-    }
-
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.storyDismissButton.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:topAnchorConstant],
+        [self.storyDismissButton.rightAnchor constraintEqualToAnchor:self.storyView.rightAnchor],
+        [self.storyDismissButton.widthAnchor constraintEqualToConstant:size],
+        [self.storyDismissButton.heightAnchor constraintEqualToConstant:size]
+    ]];
+    
     SEL buttonPressedSelector = NSSelectorFromString(@"onDismissButtonPressed:");
 #if TARGET_OS_IOS /** TouchUpInside is iOS only **/
     [self.storyDismissButton  addTarget:self action:buttonPressedSelector forControlEvents:UIControlEventTouchUpInside];
@@ -621,7 +599,7 @@
 
 #if TARGET_OS_TV
 
-- (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator __IOS_AVAILABLE(9.0) __TVOS_AVAILABLE(9.0) {
+- (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
 
     [self.messageFocus applyFocusOnSwrveButton:context];
 

@@ -189,18 +189,10 @@
 
 - (NSData *)archiveSwrveUserArray:(NSArray *)array{
     NSData *data  = nil;
-    if (@available(ios 11.0,tvos 11.0, *)) {
-        NSError *error = nil;
-        data = [NSKeyedArchiver archivedDataWithRootObject:array requiringSecureCoding:false error:&error];
-        if (error) {
-            [SwrveLogger error:@"Failed to archive swrve user: %@", [error localizedDescription]];
-        }
-    } else {
-        // Fallback on earlier versions
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        data = [NSKeyedArchiver archivedDataWithRootObject:array];
-        #pragma clang diagnostic pop
+    NSError *error = nil;
+    data = [NSKeyedArchiver archivedDataWithRootObject:array requiringSecureCoding:false error:&error];
+    if (error) {
+        [SwrveLogger error:@"Failed to archive swrve user: %@", [error localizedDescription]];
     }
     return data;
 }
@@ -208,19 +200,11 @@
 - (NSArray *)swrveUsers {
     NSData *encodedObject = [SwrveLocalStorage swrveUsers];
     NSArray *swrveUsers = nil;
-    if (@available(ios 11.0,tvos 11.0, *)) {
-        NSError *error = nil;
-        NSSet *classes = [NSSet setWithArray:@[[NSArray class], [SwrveUser class], [NSString class]]];
-        swrveUsers = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:encodedObject error:&error];
-        if (error) {
-            [SwrveLogger error:@"Failed to un archive swrve user: %@", [error localizedDescription]];
-        }
-    } else {
-        // Fallback on earlier versions
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        swrveUsers = [NSKeyedUnarchiver unarchiveObjectWithData:encodedObject];
-        #pragma clang diagnostic pop
+    NSError *error = nil;
+    NSSet *classes = [NSSet setWithArray:@[[NSArray class], [SwrveUser class], [NSString class]]];
+    swrveUsers = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:encodedObject error:&error];
+    if (error) {
+        [SwrveLogger error:@"Failed to un archive swrve user: %@", [error localizedDescription]];
     }
     return swrveUsers;
 }

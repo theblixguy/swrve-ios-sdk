@@ -51,13 +51,9 @@
         if (style.scrollable && TARGET_OS_IOS) {
             self.showsVerticalScrollIndicator = true;
             
-            if (@available(iOS 11.0,tvOS 11.0, *)) {
-                UIFontMetrics *metrics = [UIFontMetrics metricsForTextStyle:UIFontTextStyleBody];
-                self.font = [metrics scaledFontForFont:[style.font fontWithSize:scaledPointSize]];
-                self.adjustsFontForContentSizeCategory = true;
-            } else {
-                self.font = [style.font fontWithSize:scaledPointSize];
-            }
+            UIFontMetrics *metrics = [UIFontMetrics metricsForTextStyle:UIFontTextStyleBody];
+            self.font = [metrics scaledFontForFont:[style.font fontWithSize:scaledPointSize]];
+            self.adjustsFontForContentSizeCategory = true;
             [self styleAttributedText:style];
         } else {
             self.font = [style.font fontWithSize:scaledPointSize];

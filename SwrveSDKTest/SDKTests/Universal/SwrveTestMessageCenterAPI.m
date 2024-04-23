@@ -170,7 +170,6 @@
 #endif
     SwrveCampaign *campaign = [[swrveMock messageCenterCampaigns] objectAtIndex:0];
     XCTAssertEqual(campaign.state.status,SWRVE_CAMPAIGN_STATUS_UNSEEN);
-    XCTAssertEqualObjects(campaign.subject,@"IAM subject");
     XCTAssertEqual([campaign.priority intValue], 5);
     XCTAssertEqualObjects(campaign.name,@"Kindle");
 
@@ -282,7 +281,6 @@
 
     SwrveCampaign *campaign = [[swrveMock messageCenterCampaignsWithPersonalization:validPersonalization] objectAtIndex:0];
     XCTAssertEqual(campaign.state.status,SWRVE_CAMPAIGN_STATUS_UNSEEN);
-    XCTAssertEqualObjects(campaign.subject,@"Personalized Campaign");
 
     // Should be invalid due to missing personalization
     [controller showMessageCenterCampaign:campaign withPersonalization:nil];
@@ -344,12 +342,6 @@
     __block int clipboardActionCount = 0;
     __block NSString *clipboardAction;
 
-    // set clipboard callback for later use
-    [controller setClipboardButtonCallback:^(NSString* action) {
-        clipboardActionCount++;
-        clipboardAction = action;
-    }];
-
     // access the UIViews in the subview of the SwrveMessageViewController
     NSArray *vcSubviews = [[[[viewController view] subviews] firstObject] subviews];
     NSMutableArray *uiButtons = [NSMutableArray new];
@@ -397,10 +389,6 @@
     XCTAssertEqual(campaign.state.impressions, 1);
     XCTAssertEqual(campaign.state.status, SWRVE_CAMPAIGN_STATUS_SEEN);
 
-    // Check clipboard callback was called with correct parameters
-    XCTAssertEqual(clipboardActionCount, 1);
-    XCTAssertEqualObjects(clipboardAction, @"test_value");
-
 #if TARGET_OS_IOS /** exclude tvOS **/
     // verify (on iOS) that the value was copied to clipboard
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
@@ -418,156 +406,6 @@
     XCTAssertFalse([[swrveMock messageCenterCampaigns] containsObject:campaign]);
     XCTAssertEqual(campaign.state.status, SWRVE_CAMPAIGN_STATUS_DELETED);
 
-#if TARGET_OS_IOS
-    [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
-#endif
-}
-
-- (void)testEmbeddedMessageCenter {
-#if TARGET_OS_IOS
-    [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
-#endif
-    
-    [SwrveTestHelper createDummyAssets:[SwrveTestMessageCenterAPI testJSONAssets]];
-    
-    id swrveMock = [self swrveMock];
-    
-    SwrveConfig *config = [SwrveConfig new];
-    SwrveEmbeddedMessageConfig *messageConfig = [SwrveEmbeddedMessageConfig new];
-    
-    [messageConfig setEmbeddedMessageCallback:^(SwrveEmbeddedMessage *message) {
-        [[swrveMock messaging] embeddedMessageWasShownToUser:message];
-    }];
-    
-    config.embeddedMessageConfig = messageConfig;
-    
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-    [swrveMock initWithAppID:123 apiKey:@"SomeAPIKey" config:config];
-#pragma clang diagnostic pop
-    
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"campaignsMessageCenter" ofType:@"json"];
-    NSData *mockData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
-    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:mockData options:0 error:nil];
-    
-    [[swrveMock messaging] updateCampaigns:jsonDict withLoadingPreviousCampaignState:NO];
-    
-    SwrveMessageController *controller = [swrveMock messaging];
-
-    // No Message Center campaigns as they have both finished
-    XCTAssertEqual([[swrveMock messageCenterCampaigns] count], 0);
-    
-    // mock date that lies within the start and end time of the campaign in the test json file campaignsMessageCenter
-    NSDate *mockInitDate = [NSDate dateWithTimeIntervalSince1970:1362873600]; // March 10, 2013
-    OCMStub([swrveMock getNow]).andReturn(mockInitDate);
-    
-    // IAM, Embedded and Conversation support these orientations
-#if TARGET_OS_IOS
-    XCTAssertEqual([[swrveMock messageCenterCampaigns] count], 3);
-    XCTAssertEqual([[swrveMock messageCenterCampaignsThatSupportOrientation:UIInterfaceOrientationLandscapeRight] count], 3);
-    XCTAssertEqual([[swrveMock messageCenterCampaignsThatSupportOrientation:UIInterfaceOrientationPortrait] count], 3);
-#elif TARGET_OS_TV
-    // should only get two now that the conversation is excluded from the message center response
-    XCTAssertEqual([[swrveMock messageCenterCampaigns] count], 2);
-#endif
-    NSArray<SwrveCampaign *> *campaigns = [swrveMock messageCenterCampaigns];
-    SwrveEmbeddedCampaign *embeddedCampaign = nil;
-    
-    for (SwrveCampaign *candidate in campaigns) {
-        if([candidate isKindOfClass:[SwrveEmbeddedCampaign class]]) {
-            embeddedCampaign = (SwrveEmbeddedCampaign *) candidate;
-        }
-    }
-    
-    XCTAssertNotNil(embeddedCampaign);
-    XCTAssertEqual(embeddedCampaign.state.status,SWRVE_CAMPAIGN_STATUS_UNSEEN);
-    XCTAssertEqualObjects(embeddedCampaign.subject,@"Embedded subject");
-    XCTAssertEqualObjects(embeddedCampaign.name,@"Embedded name");
-    
-    [controller showMessageCenterCampaign:embeddedCampaign];
-    
-    XCTAssertEqual(embeddedCampaign.state.status,SWRVE_CAMPAIGN_STATUS_SEEN);
-    
-    // Remove the campaign, we will never get it again
-    [controller removeMessageCenterCampaign:embeddedCampaign];
-    
-    XCTAssertFalse([[swrveMock messageCenterCampaigns] containsObject:embeddedCampaign]);
-    XCTAssertEqual(embeddedCampaign.state.status, SWRVE_CAMPAIGN_STATUS_DELETED);
-    
-#if TARGET_OS_IOS
-    [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
-#endif
-}
-
-- (void)testEmbeddedWithPersonalizationMessageCenter {
-#if TARGET_OS_IOS
-    [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
-#endif
-    
-    [SwrveTestHelper createDummyAssets:[SwrveTestMessageCenterAPI testJSONAssets]];
-    
-    id swrveMock = [self swrveMock];
-    __block NSString *resolvedMessageData = nil;
-    
-    SwrveConfig *config = [SwrveConfig new];
-    SwrveEmbeddedMessageConfig *messageConfig = [SwrveEmbeddedMessageConfig new];
-    
-    [messageConfig setEmbeddedMessageCallbackWithPersonalization:^(SwrveEmbeddedMessage *message, NSDictionary *personalizationProperties) {
-        resolvedMessageData = [[swrveMock messaging] personalizeEmbeddedMessageData:message withPersonalization:personalizationProperties];
-        [[swrveMock messaging] embeddedMessageWasShownToUser:message];
-    }];
-
-    config.embeddedMessageConfig = messageConfig;
-    
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-    [swrveMock initWithAppID:123 apiKey:@"SomeAPIKey" config:config];
-#pragma clang diagnostic pop
-    
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"campaignsEmbeddedPersonalizationMessageCenter" ofType:@"json"];
-    NSData *mockData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
-    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:mockData options:0 error:nil];
-    
-    [[swrveMock messaging] updateCampaigns:jsonDict withLoadingPreviousCampaignState:NO];
-    
-    SwrveMessageController *controller = [swrveMock messaging];
-
-    // No Message Center campaigns as they have both finished
-    XCTAssertEqual([[swrveMock messageCenterCampaigns] count], 0);
-    
-    // mock date that lies within the start and end time of the campaign in the test json file campaignsMessageCenter
-    NSDate *mockInitDate = [NSDate dateWithTimeIntervalSince1970:1362873600]; // March 10, 2013
-    OCMStub([swrveMock getNow]).andReturn(mockInitDate);
-    
-    NSDictionary *validPersonalization = @{@"test_cp": @"test_value",
-                                           @"test_custom":@"urlprocessed",
-                                           @"test_display": @"display"};
-      
-    // IAM, Embedded and Conversation support these orientations
-    XCTAssertEqual([[swrveMock messageCenterCampaigns] count], 1);
-    NSArray<SwrveCampaign *> *campaigns = [swrveMock messageCenterCampaignsWithPersonalization:validPersonalization];
-    SwrveEmbeddedCampaign *embeddedCampaign = nil;
-    
-    for (SwrveCampaign *candidate in campaigns) {
-        if([candidate isKindOfClass:[SwrveEmbeddedCampaign class]]) {
-            embeddedCampaign = (SwrveEmbeddedCampaign *) candidate;
-        }
-    }
-    
-    XCTAssertNotNil(embeddedCampaign);
-    XCTAssertEqual(embeddedCampaign.state.status,SWRVE_CAMPAIGN_STATUS_UNSEEN);
-    XCTAssertEqualObjects(embeddedCampaign.subject,@"Embedded Personalization");
-
-    [controller showMessageCenterCampaign:embeddedCampaign withPersonalization:@{@"test_key": @"WORKING"}];
-    XCTAssertEqualObjects(resolvedMessageData, @"PERSONALIZATION: WORKING");
-    XCTAssertEqual(embeddedCampaign.state.status,SWRVE_CAMPAIGN_STATUS_SEEN);
-    
-    // Remove the campaign, we will never get it again
-    [controller removeMessageCenterCampaign:embeddedCampaign];
-    
-    XCTAssertFalse([[swrveMock messageCenterCampaigns] containsObject:embeddedCampaign]);
-    XCTAssertEqual(embeddedCampaign.state.status, SWRVE_CAMPAIGN_STATUS_DELETED);
-    
 #if TARGET_OS_IOS
     [SwrveTestHelper setScreenOrientation:UIInterfaceOrientationPortrait];
 #endif
@@ -631,7 +469,7 @@
     NSArray<SwrveCampaign *> *campaigns = [swrveMock messageCenterCampaignsWithPersonalization:testPersonalization];
     SwrveCampaign *campaign = nil;
     for (SwrveCampaign *candidate in campaigns) {
-        if([candidate.subject isEqual:@"Personalized Image subject"]){
+        if(candidate.ID == 105 ){
             campaign = candidate;
         }
     }
@@ -707,7 +545,7 @@
     NSArray<SwrveCampaign *> *campaigns = [swrveMock messageCenterCampaignsWithPersonalization:testPersonalization];
     SwrveCampaign *campaign = nil;
     for (SwrveCampaign *candidate in campaigns) {
-        if([candidate.subject isEqual:@"Personalized RTUP Image subject"]){
+        if(candidate.ID == 106){
             campaign = candidate;
         }
     }
@@ -777,13 +615,12 @@
     NSArray<SwrveCampaign *> *campaigns = [swrveMock messageCenterCampaignsWithPersonalization:nil];
     SwrveCampaign *campaign = nil;
     for (SwrveCampaign *candidate in campaigns) {
-        if([candidate.subject isEqual:@"RTUP Only IAM"]){
+        if(candidate.ID == 107){
             campaign = candidate;
         }
     }
     
     XCTAssertEqual(campaign.state.status,SWRVE_CAMPAIGN_STATUS_UNSEEN);
-    
 
     // Display in-app message with no personalization, should be resolved by injected RTUPs
     [controller showMessageCenterCampaign:campaign withPersonalization:nil];
@@ -832,8 +669,6 @@
     
     [[swrveMock messaging] updateCampaigns:jsonDict withLoadingPreviousCampaignState:NO];
     
-    SwrveMessageController *controller = [swrveMock messaging];
-
     // mock date
     NSDate *mockInitDate = [NSDate dateWithTimeIntervalSince1970:1362873600]; // March 10, 2013
     OCMStub([swrveMock getNow]).andReturn(mockInitDate);

@@ -21,7 +21,7 @@
 #endif
 }
 
-+ (UIImage *) imageWithName:(NSString *)imageName API_AVAILABLE(ios(8.0)) {
++ (UIImage *) imageWithName:(NSString *)imageName API_AVAILABLE(ios(12.0)) {
     NSBundle *bundle = [SwrveConversationResourceManagement conversationBundle];
     return [UIImage imageNamed:imageName inBundle:bundle compatibleWithTraitCollection: nil];
 }

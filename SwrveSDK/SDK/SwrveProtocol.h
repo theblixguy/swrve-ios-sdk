@@ -21,7 +21,7 @@
 #endif
 
 /*! The release version of this SDK. */
-#define SWRVE_SDK_VERSION "8.13.1"
+#define SWRVE_SDK_VERSION "9.0.0"
 
 /*! Defines the block signature for receiving resources after calling
  * Swrve userResources.
@@ -311,6 +311,8 @@ NSString * eventsPayloadAsJSON);
 #pragma mark - push support block
 #if TARGET_OS_IOS
 
+-(void)sendDeviceUpdate;
+
 /*! Call this method when you get a push notification device token from Apple.
  *
  * \param deviceToken Apple device token for your app.
@@ -324,7 +326,7 @@ NSString * eventsPayloadAsJSON);
 -(void) sendPushNotificationEngagedEvent:(NSString*)pushId withPayload:(NSMutableDictionary *)payload;
 
 /**! Should be included to a push response if not using SwrvePushResponseDelegate **/
-- (void) processNotificationResponse:(UNNotificationResponse *)response __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0);
+- (void) processNotificationResponse:(UNNotificationResponse *)response;
 
 /*! Process the push notification in the background. The completion handler is called if a silent push notification was received with the
  *  fetch result and the custom payloads as parameters.
@@ -333,7 +335,7 @@ NSString * eventsPayloadAsJSON);
  * \param completionHandler Completion handler, only called for silent push notifications.
  * \returns If a Swrve silent push notification was handled by the Swrve SDK. In that case the payload and calls to the parent completionHandler will have to be done inside the completionHandler parameter.
  */
-- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary*))completionHandler API_AVAILABLE(ios(7.0));
+- (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary*))completionHandler API_AVAILABLE(ios(12.0));
 
 #endif //TARGET_OS_IOS
 

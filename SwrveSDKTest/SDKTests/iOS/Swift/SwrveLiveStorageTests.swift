@@ -60,7 +60,7 @@ final class SwrveLiveStorageTests: XCTestCase {
         XCTAssertEqual([SwrveLiveActivityData.anotherMockedData], fetchedActivityData)
     }
     
-    func testThatActivityStoragRemovesActvityWithGivenName() throws {
+    func testThatActivityStoragRemovesActivityWithGivenName() throws {
         let mockedAcivityData: SwrveLiveActivityData = .mock
 
         let sut = SwrveLiveActivityStorage(userDefaults: userDefaults, storageKey: storageKey)

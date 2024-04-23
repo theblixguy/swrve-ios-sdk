@@ -28,6 +28,11 @@ static dispatch_once_t sharedInstanceToken = 0;
     return [[SwrveSDK sharedInstance] userID];
 }
 
++ (NSString *)deviceID {
+    [SwrveSDK checkInstance];
+    return [SwrveLocalStorage deviceUUID];
+}
+
 + (void)resetSwrveSharedInstance {
     if (_swrveSharedInstance) {
         [_swrveSharedInstance shutdown];
@@ -184,6 +189,11 @@ static dispatch_once_t sharedInstanceToken = 0;
 
 #if TARGET_OS_IOS
 
++ (void)sendDeviceUpdate {
+    [SwrveSDK checkInstance];
+    [[SwrveSDK sharedInstance] sendDeviceUpdate];
+}
+
 + (void)setDeviceToken:(NSData *)deviceToken {
     [SwrveSDK checkInstance];
     [[SwrveSDK sharedInstance] setDeviceToken:deviceToken];
@@ -204,7 +214,7 @@ static dispatch_once_t sharedInstanceToken = 0;
     [[SwrveSDK sharedInstance] sendPushNotificationEngagedEvent:pushId withPayload:nil];
 }
 
-+ (void)processNotificationResponse:(UNNotificationResponse *)response __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0) {
++ (void)processNotificationResponse:(UNNotificationResponse *)response {
     [SwrveSDK checkInstance];
     [[SwrveSDK sharedInstance] processNotificationResponse:response];
 }

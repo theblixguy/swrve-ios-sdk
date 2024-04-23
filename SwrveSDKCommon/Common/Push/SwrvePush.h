@@ -17,10 +17,10 @@ extern NSString *const SwrveContentVersionKey;
 #if !TARGET_OS_TV
 @optional
 - (void)didReceiveNotificationResponse:(UNNotificationResponse *)response
-                 withCompletionHandler:(void (^)(void))completionHandler __IOS_AVAILABLE(10.0);
+                 withCompletionHandler:(void (^)(void))completionHandler __IOS_AVAILABLE(12.0);
 
 - (void)willPresentNotification:(UNNotification *)notification
-          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler __IOS_AVAILABLE(10.0);
+          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler __IOS_AVAILABLE(12.0);
 
 - (void)openSettingsForNotification:(nullable UNNotification *)notification API_AVAILABLE(macos(10.14), ios(12.0)) API_UNAVAILABLE(watchos, tvos);
 #endif
@@ -37,7 +37,7 @@ extern NSString *const SwrveContentVersionKey;
  */
 + (void)handleNotificationContent:(UNNotificationContent *)notificationContent
            withAppGroupIdentifier:(nullable NSString *)appGroupIdentifier
-     withCompletedContentCallback:(void (^)(UNMutableNotificationContent *content))callback __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0);
+     withCompletedContentCallback:(void (^)(UNMutableNotificationContent *content))callback;
 
 #endif
 @end

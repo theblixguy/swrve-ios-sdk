@@ -253,13 +253,13 @@ NS_ASSUME_NONNULL_BEGIN
  * \param completionHandler Completion handler, only called for silent push notifications.
  * \returns If a Swrve silent push notification was handled by the Swrve SDK. In that case the payload and calls to the parent completionHandler will have to be done inside the completionHandler parameter.
  */
-+ (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(7.0));
++ (BOOL)didReceiveRemoteNotification:(NSDictionary *)userInfo withBackgroundCompletionHandler:(void (^)(UIBackgroundFetchResult, NSDictionary *))completionHandler API_AVAILABLE(ios(12.0));
 
 /*! Called to send the push engaged event to Swrve. */
 + (void)sendPushEngagedEvent:(NSString *)pushId;
 
 /**! Should be included to a push response if not using SwrvePushResponseDelegate **/
-+ (void)processNotificationResponse:(UNNotificationResponse *)response __IOS_AVAILABLE(10.0) __TVOS_AVAILABLE(10.0);
++ (void)processNotificationResponse:(UNNotificationResponse *)response;
 
 #endif //TARGET_OS_IOS
 
@@ -274,6 +274,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!< User ID used to initialize this Swrve object. */
 + (NSString *)userID;
+
+/*!< Unique UUID used to identify this device */
++ (NSString *)deviceID;
 
 /*! Call this method from application:openURL:option
  
