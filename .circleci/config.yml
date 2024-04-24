@@ -3,8 +3,8 @@ version: 2.1
 jobs:
   build:
     macos:
-      xcode: 14.2.0
-    resource_class: macos.x86.medium.gen2
+      xcode: 15.3.0
+    resource_class: macos.m1.medium.gen1
     steps:
       - checkout
       - run:
@@ -12,13 +12,12 @@ jobs:
           command: |
             cd SwrveSDKTest
             pod install
-      - run: fastlane unitTestsiOS scheme:"SwrveSDKiOS" device:"iPhone 14"
+      - run: fastlane unitTestsiOS scheme:"SwrveSDKiOS" device:"iPhone 15"
       - run: fastlane unitTeststvOS scheme:"SwrveSDKtvOS"
       - store_test_results:
-          path: output/scan
+          path: fastlane/test_output/
 
 workflows:
-  version: 2
   build_and_test:
     jobs:
       - build
