@@ -6,7 +6,58 @@ import ActivityKit
 
 @available(iOS 16.2, *)
 final class SwrveLiveActivityTests: XCTestCase {
+    
+    override func tearDown() {
+        super.tearDown()
+        // Clear UserDefaults after each test
+        if let bundleIdentifier = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
+        }
+        UserDefaults.standard.synchronize()
+    }
+    
+    func testLiveActivitiesDeviceProps_Default() {
+        SwrveSDK.sharedInstance(withAppID: 1234, apiKey: "apiKey")
+        SwrveSDKSwift.registerLiveActivity(ofType: TestAttributes.self)
 
+        let sdk = SwrveCommon.sharedInstance()
+        let liveActivityPermission = sdk?.deviceInfo()?["swrve.permission.ios.live_activities"] as? String
+        let frequentUpdatePermision = sdk?.deviceInfo()?["swrve.permission.ios.live_activities_frequent_updates"] as? String
+        
+        XCTAssertEqual(liveActivityPermission, "authorized")
+        XCTAssertEqual(frequentUpdatePermision, "denied")
+    }
+    
+    func testLiveActivitiesDeviceProps_True() {
+        SwrveSDK.sharedInstance(withAppID: 1234, apiKey: "apiKey")
+        
+        let storage = SwrveLiveActivityStorage()
+        storage.saveActivitiesEnabled(true)
+        storage.saveFrequentPushEnabled(true)
+        
+        let sdk = SwrveCommon.sharedInstance()
+        let liveActivityPermission = sdk?.deviceInfo()?["swrve.permission.ios.live_activities"] as? String
+        let frequentUpdatePermision = sdk?.deviceInfo()?["swrve.permission.ios.live_activities_frequent_updates"] as? String
+        
+        XCTAssertEqual(liveActivityPermission, "authorized")
+        XCTAssertEqual(frequentUpdatePermision, "authorized")
+    }
+    
+    func testLiveActivitiesDeviceProps_False() {
+        SwrveSDK.sharedInstance(withAppID: 1234, apiKey: "apiKey")
+        
+        let storage = SwrveLiveActivityStorage()
+        storage.saveActivitiesEnabled(false)
+        storage.saveFrequentPushEnabled(false)
+        
+        let sdk = SwrveCommon.sharedInstance()
+        let liveActivityPermission = sdk?.deviceInfo()?["swrve.permission.ios.live_activities"] as? String
+        let frequentUpdatePermision = sdk?.deviceInfo()?["swrve.permission.ios.live_activities_frequent_updates"] as? String
+        
+        XCTAssertEqual(liveActivityPermission, "denied")
+        XCTAssertEqual(frequentUpdatePermision, "denied")
+    }
+        
     func testDeviceEvent() {
         
         SwrveSDK.sharedInstance(withAppID: 1234, apiKey: "apiKey")

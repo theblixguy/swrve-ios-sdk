@@ -7,16 +7,6 @@
 #import "SwrvePermissions.h"
 #endif
 
-#if TARGET_OS_IOS
-#if __has_include(<SwrveSDK/SwrveSDK-Swift.h>)
-#import <SwrveSDK/SwrveSDK-Swift.h>
-// if we cant find SwrveSDK-Swift.h then it could be direct source which is
-// not supported.
-#define SWRVE_MODULE 1
-#endif
-
-#endif
-
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
 static NSString* SWRVE_DEVICE_NAME =                    @"swrve.device_name";
@@ -49,12 +39,6 @@ static NSString* SWRVE_LIVE_ACTIVITIES_FREQUENT_UPDATES = @"swrve.permission.ios
 static NSString* SWRVE_LIVE_ACTIVITIES_PUSH_TO_START_TOKEN = @"swrve.push_to_start_token";
 static NSString* PLATFORM =                             @"iOS "; // with trailing space
 
-#if SWRVE_MODULE && TARGET_OS_IOS
-@interface SwrveDeviceProperties ()
-@property (nonatomic) id<ActivityAuthorizationInfoProtocol> liveActivityProvider;
-@end
-#endif
-
 @implementation SwrveDeviceProperties
 
 #pragma mark - properties
@@ -70,10 +54,6 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
 #if TARGET_OS_IOS /** exclude tvOS **/
 @synthesize conversationVersion = _conversationVersion;
 @synthesize deviceToken = _deviceToken;
-
-#if SWRVE_MODULE
-@synthesize liveActivityProvider;
-#endif
 
 #pragma mark - init
 
@@ -94,11 +74,6 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
         self.permissionStatus = permissionStatus;
         self.sdk_language = sdk_language;
         self.swrveInitMode = initMode;
-#if SWRVE_MODULE
-        if (@available(iOS 16.2, *)) {
-            self.liveActivityProvider = [[SwrveLiveActivity alloc] init];
-        }
-#endif
     }
     return self;
 }
@@ -179,26 +154,26 @@ static NSString* PLATFORM =                             @"iOS "; // with trailin
     [deviceProperties setValue:trackingState forKey:SWRVE_TRACKING_STATE];
 
 #if TARGET_OS_IOS /** retrieve the properties only supported by iOS **/
-#if SWRVE_MODULE
     // ios Live Activities
+    // In the future we will read these values directly from SwrveLiveActivity Swift class.
     if (@available(iOS 16.2, *)) {
-        NSString *value = [self.liveActivityProvider areActivitiesEnabled] ? swrve_permission_status_authorized : swrve_permission_status_denied ;
+        NSString *value = [[NSUserDefaults standardUserDefaults] boolForKey:@"SwrveActivitiesEnabled"] ? swrve_permission_status_authorized : swrve_permission_status_denied ;
+        
         [deviceProperties setValue:value forKey:SWRVE_LIVE_ACTIVITIES];
     }
     
     if (@available(iOS 16.2, *)) {
-        NSString *value = [self.liveActivityProvider frequentPushesEnabled] ? swrve_permission_status_authorized : swrve_permission_status_denied;
+        NSString *value = [[NSUserDefaults standardUserDefaults] boolForKey:@"SwrveFrequentPushEnabled"] ? swrve_permission_status_authorized : swrve_permission_status_denied;
         [deviceProperties setValue:value forKey:SWRVE_LIVE_ACTIVITIES_FREQUENT_UPDATES];
     }
     
     if (@available(iOS 17.2, *)) {
-        NSString *pushToStartToken = self.liveActivityProvider.pushToStartToken;
+        NSString *pushToStartToken = [[NSUserDefaults standardUserDefaults] stringForKey:@"SwrvePushToStartToken"];
         if (pushToStartToken != nil) {
             [deviceProperties setValue:pushToStartToken forKey:SWRVE_LIVE_ACTIVITIES_PUSH_TO_START_TOKEN];
         }
     }
     
-#endif
     [deviceProperties setValue:[NSNumber numberWithInteger:self.conversationVersion] forKey:SWRVE_CONVERSION_VERSION];
     
     // Push properties

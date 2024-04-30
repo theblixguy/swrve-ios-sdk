@@ -85,6 +85,9 @@ extension SwrveLiveActivity {
 
 extension SwrveLiveActivity {
     static func registerActivity<T: SwrveLiveActivityAttributes>(ofType attributesType: T.Type) {
+        //temporary work around to store the values so they can be read by SwrveDeviceProperites.
+        storage.saveFrequentPushEnabled(ActivityAuthorizationInfo().frequentPushesEnabled)
+        storage.saveActivitiesEnabled(ActivityAuthorizationInfo().areActivitiesEnabled)
         if #available(iOS 17.2, *) {
             startObservingPushToStartToken(attributesType: attributesType)
         }

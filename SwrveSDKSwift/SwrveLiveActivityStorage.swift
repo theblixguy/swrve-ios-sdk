@@ -6,17 +6,21 @@ public class SwrveLiveActivityStorage {
     private let userDefaults: UserDefaults
     private let storageKey: String
     private let pushToStartTokenStorageKey: String
-
-
+    private let activitiesEnabledKey: String
+    private let frequentPushEnabledKey: String
+    
     public init(
         userDefaults: UserDefaults = UserDefaults.standard,
         storageKey: String = "SwrveTrackedActivites",
-        pushToStartTokenStorageKey: String = "SwrvePushToStartToken"
+        pushToStartTokenStorageKey: String = "SwrvePushToStartToken",
+        activitiesEnabledKey: String = "SwrveActivitiesEnabled",
+        frequentPushEnabledKey: String = "SwrveFrequentPushEnabled"
     ) {
         self.userDefaults = userDefaults
         self.storageKey = storageKey
         self.pushToStartTokenStorageKey = pushToStartTokenStorageKey
-
+        self.activitiesEnabledKey = activitiesEnabledKey
+        self.frequentPushEnabledKey = frequentPushEnabledKey
     }
 }
     
@@ -71,5 +75,13 @@ extension SwrveLiveActivityStorage {
     
     func fetchPushToStartToken() -> String? {
         userDefaults.string(forKey: pushToStartTokenStorageKey)
+    }
+     
+    func saveActivitiesEnabled(_ enabled: Bool) {
+        userDefaults.set(enabled, forKey: activitiesEnabledKey)
+    }
+    
+    func saveFrequentPushEnabled(_ enabled: Bool) {
+        userDefaults.set(enabled, forKey: frequentPushEnabledKey)
     }
 }

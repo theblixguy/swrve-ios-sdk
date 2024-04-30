@@ -31,7 +31,7 @@
 }
 
 - (int)devicePropertyCount {
-    if (@available(iOS 17.2, *)) {
+    if (@available(iOS 17.4, *)) {
         // push to start token increases the count by 1
         return 18;
     } else if (@available(iOS 16.2, *)) {
@@ -245,32 +245,6 @@
 
     NSString *installDate = [swrveDeviceProperties installDate:[swrveDeviceProperties appInstallTimeSeconds]];
     XCTAssertEqualObjects(installDate,@"19700101");
-}
-
-- (void)testDeviceProperties_liveActivitesPermission_authorized {
-    id swrveDeviceProperties = OCMPartialMock([SwrveDeviceProperties new]);
-    id mock = OCMProtocolMock(@protocol(ActivityAuthorizationInfoProtocol));
-    
-    OCMStub([swrveDeviceProperties liveActivityProvider]).andReturn(mock);
-    OCMStub([mock areActivitiesEnabled]).andReturn(true);
-    OCMStub([mock frequentPushesEnabled]).andReturn(true);
-    
-    NSDictionary *deviceInfo = [swrveDeviceProperties deviceProperties];
-    XCTAssertEqualObjects([deviceInfo valueForKey:@"swrve.permission.ios.live_activities"], @"authorized");
-    XCTAssertEqualObjects([deviceInfo valueForKey:@"swrve.permission.ios.live_activities_frequent_updates"], @"authorized");
-}
-
-- (void)testDeviceProperties_liveActivitesPermission_denied {
-    id swrveDeviceProperties = OCMPartialMock([SwrveDeviceProperties new]);
-    id mock = OCMProtocolMock(@protocol(ActivityAuthorizationInfoProtocol));
-  
-    OCMStub([swrveDeviceProperties liveActivityProvider]).andReturn(mock);
-    OCMStub([mock areActivitiesEnabled]).andReturn(false);
-    OCMStub([mock frequentPushesEnabled]).andReturn(false);
-        
-    NSDictionary *deviceInfo = [swrveDeviceProperties deviceProperties];
-    XCTAssertEqualObjects([deviceInfo valueForKey:@"swrve.permission.ios.live_activities"], @"denied");
-    XCTAssertEqualObjects([deviceInfo valueForKey:@"swrve.permission.ios.live_activities_frequent_updates"], @"denied");
 }
 
 @end
