@@ -27,6 +27,7 @@
 - (NSInteger)nextEventSequenceNumber;
 - (NSString *)sessionToken;
 - (void)setSwrveSessionDelegate:(id<SwrveSessionDelegate>)sessionDelegate;
+- (void)removeSwrveSessionDelegate:(id<SwrveSessionDelegate>)sessionDelegate;
 
 @optional
 - (id <NSURLSessionDelegate>)urlSessionDelegate;

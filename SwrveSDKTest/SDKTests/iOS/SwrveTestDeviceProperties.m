@@ -31,10 +31,7 @@
 }
 
 - (int)devicePropertyCount {
-    if (@available(iOS 17.4, *)) {
-        // push to start token increases the count by 1
-        return 18;
-    } else if (@available(iOS 16.2, *)) {
+    if (@available(iOS 16.2, *)) {
         // starting 16.2, we add two additional LA property
         return 17;
     } else {

@@ -268,6 +268,10 @@
 #pragma unused (sessionDelegate)
 }
 
+- (void)removeSwrveSessionDelegate:(id<SwrveSessionDelegate>)sessionDelegate {
+#pragma unused (sessionDelegate)
+}
+
 - (id<NSURLSessionDelegate>)urlSessionDelegate {
     return nil;
 }

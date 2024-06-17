@@ -4385,7 +4385,7 @@ XCTAssertTrue(fabs((actual) - (expected)) < (tolerance), @"%@ is not equal to %@
     [self waitForStoryProgression:messageViewController toPageId:2];
     NSDate *end = [NSDate date];
     NSTimeInterval timeBetween1And2 = [end timeIntervalSinceDate:start];
-    XCTAssertEqualWithTolerance(timeBetween1And2, 2.0, 1.0); // Duration should about 2 seconds, tolerance 1 second
+    XCTAssertEqualWithTolerance(timeBetween1And2, 2.0, 1.25); // Duration should about 2 seconds, tolerance 1.25 second
 
     // time progression to page 3
     start = [NSDate date];

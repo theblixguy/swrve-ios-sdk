@@ -175,13 +175,16 @@
     }];
     OCMVerifyAll(swrveMock);
     OCMVerifyAll(mockSwrveSessionDelegate1);
+    [swrveMock removeSwrveSessionDelegate:mockSwrveSessionDelegate1];
 
     // Calling a second time within the same session should not call the mockSwrveSessionDelegate
     id mockSwrveSessionDelegate2 = OCMProtocolMock(@protocol(SwrveSessionDelegate)); // mock SessionDelegate for each verify
     [swrveMock setSwrveSessionDelegate:mockSwrveSessionDelegate2];
     OCMReject([mockSwrveSessionDelegate2 sessionStarted]);
     [swrveMock appDidBecomeActive:nil];
-    OCMVerifyAll(mockSwrveSessionDelegate2);
+    OCMVerifyAll(mockSwrveSessionDelegate2);    
+    //Test that nil clears all previous delegates (so the OCMReject call above should not reject again)
+    [swrveMock setSwrveSessionDelegate:nil];
 
     // Calling a third time, but fast forward time by 30 seconds. mockSwrveSessionDelegate should be called as its a new session
     id mockSwrveSessionDelegate3 = OCMProtocolMock(@protocol(SwrveSessionDelegate)); // mock SessionDelegate for each verify

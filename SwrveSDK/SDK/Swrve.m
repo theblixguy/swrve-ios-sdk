@@ -187,7 +187,7 @@ enum {
     NSDate *lastSessionDate;
     SwrveEventQueuedCallback event_queued_callback;
     long instanceID; // The unique id associated with this instance of Swrve
-    id <SwrveSessionDelegate> sessionDelegate;
+    NSMutableArray<SwrveSessionDelegate>* sessionDelegates;
 }
 
 @property(atomic) SwrveDeeplinkManager *swrveDeeplinkManager;
@@ -2732,14 +2732,33 @@ enum HttpStatus {
 }
 
 - (void)setSwrveSessionDelegate:(id <SwrveSessionDelegate>)swrveSessionDelegate {
-    sessionDelegate = swrveSessionDelegate;
+    if(sessionDelegates) {
+        if(swrveSessionDelegate) {
+            [sessionDelegates addObject:swrveSessionDelegate];
+        } else {
+            //For backward-compatibility, a nil parameter will remove all session delegates
+            [sessionDelegates removeAllObjects];
+        }
+    } else {
+        sessionDelegates = [[NSMutableArray<SwrveSessionDelegate> alloc] initWithObjects:swrveSessionDelegate, nil];
+    }
+}
+
+- (void)removeSwrveSessionDelegate:(id <SwrveSessionDelegate>)swrveSessionDelegate {
+    if(sessionDelegates) {
+        [sessionDelegates removeObject:swrveSessionDelegate];
+    }
 }
 
 - (void)executeSessionStartedDelegate {
-    if (sessionDelegate) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->sessionDelegate sessionStarted];
-        });
+    if (sessionDelegates) {
+        for (id sessionDelegate in sessionDelegates) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(sessionDelegate) {
+                    [sessionDelegate sessionStarted];
+                }
+            });
+        }
     }
 }
 

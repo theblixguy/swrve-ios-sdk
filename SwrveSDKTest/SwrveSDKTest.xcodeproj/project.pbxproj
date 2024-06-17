@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F694D209AD1593BDF587366 /* AutoMockable.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996048C444917927EF7688C4 /* AutoMockable.generated.swift */; };
 		1B5CAC152464124B003AE19C /* ad_journey_campaign_message_personalization.json in Resources */ = {isa = PBXBuildFile; fileRef = 1B5CAC142464124B003AE19C /* ad_journey_campaign_message_personalization.json */; };
 		1B5CAC1624641253003AE19C /* ad_journey_campaign_message_personalization.json in Resources */ = {isa = PBXBuildFile; fileRef = 1B5CAC142464124B003AE19C /* ad_journey_campaign_message_personalization.json */; };
 		239EBD5387C83C973971A8A6 /* multipage_campaign_swipe.json in Resources */ = {isa = PBXBuildFile; fileRef = 239EBA3E55425E2E095E9299 /* multipage_campaign_swipe.json */; };
@@ -358,6 +359,7 @@
 		85647AF292D415E169F2FF3F /* Pods_SwrveSDK_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwrveSDK_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		885FF09B9FD8E1FDC5E4AB52 /* Pods-SwrveSDK-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwrveSDK-tvOS.release.xcconfig"; path = "../../../SwrvePrivateWorkspace/Pods/Target Support Files/Pods-SwrveSDK-tvOS/Pods-SwrveSDK-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		91A0AC4E619CBC20196BD052 /* Pods-SwrveSDK-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwrveSDK-tvOSTests.release.xcconfig"; path = "../../../SwrvePrivateWorkspace/Pods/Target Support Files/Pods-SwrveSDK-tvOSTests/Pods-SwrveSDK-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		996048C444917927EF7688C4 /* AutoMockable.generated.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = AutoMockable.generated.swift; sourceTree = "<group>"; };
 		A007CEA1BDDA58160683C958 /* Pods_SwrveSDK_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwrveSDK_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A113DA9CEC2E079E092052F1 /* Pods-SwrveSDKSwiftTestTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwrveSDKSwiftTestTests.debug.xcconfig"; path = "../../../SwrvePrivateWorkspace/Pods/Target Support Files/Pods-SwrveSDKSwiftTestTests/Pods-SwrveSDKSwiftTestTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B92E05E2CB20DF4A5EA80E01 /* Pods-SwrveSDK-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwrveSDK-iOS.debug.xcconfig"; path = "../../../SwrvePrivateWorkspace/Pods/Target Support Files/Pods-SwrveSDK-iOS/Pods-SwrveSDK-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -618,8 +620,17 @@
 				C5DCC60C2AC15C9F0056686A /* SwrveLiveStorageTests.swift */,
 				C5AB4DDD2BAA35B7004723B8 /* SwrveLiveActivityTests.swift */,
 				C5DCC60E2AC15D2A0056686A /* SwrveSDK-iOSTests-Bridging-Header.h */,
+				E4CFF651CC7F28552DE6960B /* Generated */,
 			);
 			path = Swift;
+			sourceTree = "<group>";
+		};
+		E4CFF651CC7F28552DE6960B /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				996048C444917927EF7688C4 /* AutoMockable.generated.swift */,
+			);
+			path = Generated;
 			sourceTree = "<group>";
 		};
 		F60B7F41225F3BA1009AFCCC /* tvOS */ = {
@@ -1388,6 +1399,7 @@
 				F66986D925BDA93F00950E98 /* SwrveTestRichPushHelpers.m in Sources */,
 				F66986C725BDA90B00950E98 /* SwrveTestConversations.m in Sources */,
 				5B2B6E2723C49346000B1687 /* SwrveTestMessageCenterAPI.m in Sources */,
+				0F694D209AD1593BDF587366 /* AutoMockable.generated.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

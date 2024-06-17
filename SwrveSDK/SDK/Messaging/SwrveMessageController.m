@@ -1574,12 +1574,6 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
     if (message != nil && [message isKindOfClass:[SwrveMessage class]]) {
         SwrveMessage *messageToBeDisplayed = (SwrveMessage *) message;
         
-        if (messageToBeDisplayed.control) {
-            [SwrveLogger warning:@"This message is a control message and will not be displayed.", nil];
-            [self baseMessageWasHandledOrShownToUser:message embedded:@"false"];
-            return campaignShown;
-        }
-
         if (![messageToBeDisplayed canResolvePersonalization:personalizationProperties]) {
             [SwrveLogger warning:@"Personalization options are not available for this message.", nil];
             return campaignShown;
@@ -1588,6 +1582,13 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         NSSet *assets = [assetsManager assetsOnDisk];
         if (![messageToBeDisplayed assetsReady:assets withPersonalization:personalizationProperties]) {
             [SwrveLogger warning:@"Url Personalization could not be resolved for this message.", nil];
+            return campaignShown;
+        }
+        
+        // Check if the campaign is a control LAST so that other conditional checks are applied to control campaigns
+        if (messageToBeDisplayed.control) {
+            [SwrveLogger warning:@"This message is a control message and will not be displayed.", nil];
+            [self baseMessageWasHandledOrShownToUser:message embedded:@"false"];
             return campaignShown;
         }
 
@@ -1609,14 +1610,10 @@ static NSNumber *numberFromJsonWithDefault(NSDictionary *json, NSString *key, in
         if (messageToBeDisplayed.control) {
             [SwrveLogger warning:@"This message is a control message and should not be displayed.", nil];
         }
-        
         if (self.embeddedMessageConfig.embeddedCallback != nil) {
             self.embeddedMessageConfig.embeddedCallback(messageToBeDisplayed, personalizationProperties, messageToBeDisplayed.control);
-        } else if (messageToBeDisplayed.control) {
-            [self baseMessageWasHandledOrShownToUser:message embedded:@"true"];
-            return campaignShown;
+            campaignShown = YES;
         }
-        campaignShown = YES;
     }
 
     // If message shown then return
