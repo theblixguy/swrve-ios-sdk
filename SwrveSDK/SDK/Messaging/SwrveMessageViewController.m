@@ -163,13 +163,17 @@
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        #if !TARGET_OS_VISION
         keyWindow = [[UIApplication sharedApplication] keyWindow];
+        #endif
 #pragma clang diagnostic pop
     }
     CGSize screenSize = [keyWindow bounds].size;
     // if campaign is launched before window is visible, there is strong possibility of screenSize to be zero
     if (screenSize.width == 0.0 || screenSize.height == 0) {
+        #if !TARGET_OS_VISION
         screenSize = [UIScreen mainScreen].bounds.size;
+        #endif
     }
     return screenSize;
 }

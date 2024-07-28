@@ -131,7 +131,11 @@
 
 + (CGFloat)renderScaleFor:(SwrveMessageFormat *)format withParentSize:(CGSize)sizeParent {
     // Calculate the scale needed to fit the format in the current viewport
+    #if TARGET_OS_VISION
+    CGFloat screenScale = 1.0;
+    #else
     CGFloat screenScale = [[UIScreen mainScreen] scale];
+    #endif
     float wscale = (float) ((sizeParent.width * screenScale) / format.size.width);
     float hscale = (float) ((sizeParent.height * screenScale) / format.size.height);
     float viewportScale = (wscale < hscale) ? wscale : hscale;

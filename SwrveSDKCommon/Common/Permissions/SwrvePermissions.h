@@ -47,7 +47,7 @@ static NSString* swrve_permission_requestable           = @".requestable";
 + (SwrvePermissionState)checkAdTracking:(id<SwrveCommonDelegate>)sdk;
 + (BOOL)requestAdTracking:(id<SwrveCommonDelegate>)sdk;
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
 + (void)requestPushNotifications:(id<SwrveCommonDelegate>)sdk provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings;
 + (NSString*)pushAuthorizationWithSDK: (id<SwrveCommonDelegate>)sdk;
 + (NSString*)pushAuthorizationWithSDK: (id<SwrveCommonDelegate>)sdk WithCallback:(nullable void (^)(NSString * pushAuthorization)) callback;

@@ -24,7 +24,11 @@
 
 -(void) loadViewWithContainerView:(UIView*)containerView {
     // Height is defined as 'pixels' so we need to transform it to the point space
+    #if TARGET_OS_VISION
+    float screenScale = 1.0f;
+    #else
     float screenScale = (float)[[UIScreen mainScreen] scale];
+    #endif
     float spacer_height = _height / screenScale;
     _view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, containerView.frame.size.width, spacer_height)];
     [SwrveConversationStyler styleView:_view withStyle:self.style];

@@ -49,7 +49,9 @@
 }
 
 - (void)updateBounds {
+    #if !TARGET_OS_VISION
     [self.view setFrame:[[UIScreen mainScreen] bounds]]; // Update the bounds to the new screen size
+    #endif
 }
 
 - (void)removeAllSubViews {

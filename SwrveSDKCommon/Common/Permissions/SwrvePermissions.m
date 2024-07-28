@@ -25,7 +25,7 @@
 }
 
 +(BOOL) processPermissionRequest:(NSString*)action withSDK:(id<SwrveCommonDelegate>)sdk {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
     if([action caseInsensitiveCompare:@"swrve.request_permission.ios.push_notifications"] == NSOrderedSame) {
         [SwrvePermissions requestPushNotifications:sdk provisional:NO providesAppNotificationSettings:NO];
         return YES;
@@ -85,7 +85,7 @@
     }
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
 
 + (NSString *)pushAuthorizationWithSDK:(id<SwrveCommonDelegate>)sdk {
     return [SwrvePermissions pushAuthorizationWithSDK:sdk WithCallback:nil];
@@ -339,7 +339,7 @@
     return FALSE;
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
 +(void)requestPushNotifications:(id<SwrveCommonDelegate>)sdk provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
     UNAuthorizationOptions notificationAuthOptions = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     if (providesAppNotificationSettings) {
@@ -395,12 +395,12 @@
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
         BOOL refreshToken = (settings.authorizationStatus == UNAuthorizationStatusAuthorized);
-#if TARGET_OS_IOS /** exclude tvOS **/
+#if TARGET_OS_IOS || TARGET_OS_VISION /** exclude tvOS **/
         refreshToken = refreshToken || (settings.authorizationStatus == UNAuthorizationStatusProvisional);
 #endif
 
         if (refreshToken) {
-#if TARGET_OS_IOS /** exclude tvOS **/
+#if TARGET_OS_IOS || TARGET_OS_VISION/** exclude tvOS **/
             if (sdk.notificationCategories != nil && [sdk.notificationCategories count] > 0) {
                 [center setNotificationCategories:sdk.notificationCategories];
             }

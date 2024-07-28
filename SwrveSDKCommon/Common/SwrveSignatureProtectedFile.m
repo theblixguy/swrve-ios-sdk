@@ -166,7 +166,7 @@
 }
 
 - (NSData*) readWithRespectToPlatform {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
     return [self readFromFile];
 #elif TARGET_OS_TV
     // tvOS has a much more aggressive cache than iOS, which means most things have to be stored to the tvOS defaults rather than the cache

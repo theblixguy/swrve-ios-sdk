@@ -8,6 +8,9 @@
 @implementation SwrveUtils
 
 + (CGRect)deviceScreenBounds {
+#if TARGET_OS_VISION
+    return CGRectZero;
+#else
     UIScreen *screen   = [UIScreen mainScreen];
     CGRect bounds = [screen bounds];
     float screen_scale = (float)[[UIScreen mainScreen] scale];
@@ -18,9 +21,13 @@
     bounds.size.width  = (side_a > side_b)? side_b : side_a;
     bounds.size.height = (side_a > side_b)? side_a : side_b;
     return bounds;
+#endif
 }
 
 + (float)estimate_dpi {
+#if TARGET_OS_VISION
+    return 160.0f;
+#else
     float scale = (float)[[UIScreen mainScreen] scale];
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         return 132.0f * scale;
@@ -30,6 +37,7 @@
         return 163.0f * scale;
     }
     return 160.0f * scale;
+#endif
 }
 
 + (NSString *)hardwareMachineName {

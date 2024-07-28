@@ -7,14 +7,14 @@
 #import "SwrveSEConfig.h"
 
 @interface SwrveCampaignDelivery ()
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
 @property(nonatomic, retain) NSString *appGroupId;
 #endif //TARGET_OS_IOS
 @end
 
 @implementation SwrveCampaignDelivery
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_VISION
 
 @synthesize appGroupId;
 

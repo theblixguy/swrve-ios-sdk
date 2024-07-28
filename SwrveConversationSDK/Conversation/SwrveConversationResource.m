@@ -38,11 +38,15 @@
 +(UIImage*) searchPaths:(NSArray*)paths forImageNamed:(NSString*)name withPrefix:(NSString*)prefix {
     NSString *fullname;
     
+    #if TARGET_OS_VISION
+    fullname = [[NSString stringWithFormat:@"%@%@", prefix, name] stringByAppendingPathExtension:@"png"];
+    #else
     if([UIScreen mainScreen].scale >= 2.0) {
         fullname = [[NSString stringWithFormat:@"%@%@%@", prefix, name, @"@2x"] stringByAppendingPathExtension:@"png"];
     } else {
         fullname = [[NSString stringWithFormat:@"%@%@", prefix, name] stringByAppendingPathExtension:@"png"];
     }
+    #endif
     
     UIImage * img = nil;
     for (NSUInteger i=0; !img && (i < paths.count); i++) {
